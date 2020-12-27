@@ -18,7 +18,10 @@ function renderKeys(): string {
   return html
 }
 
-function renderProgramOptions(programNames: { [index: number]: string[] }, bank: number): string {
+function renderProgramOptions(
+  programNames: { [index: number]: string[] },
+  bank: number
+): string {
   let html = ""
   const names = programNames[bank]
   for (let i in names) {
@@ -41,19 +44,10 @@ function renderInstrument(program): Element {
   `)
 }
 
-function objectMap(o, func) {
-  const result = {}
-  Object.keys(o).forEach(key => {
-    result[key] = func(o[key])
-  })
-  return result
-}
-
-function programNamesFromBankSet(bankSet) {
-  return objectMap(bankSet, bank => objectMap(bank, s => s.name))
-}
-
-function mergeProgramNames(left: {[index: number]: string[]}, right: {[index: number]: string[]}) {
+function mergeProgramNames(
+  left: { [index: number]: { [index: number]: string } },
+  right: { [index: number]: { [index: number]: string } }
+) {
   function mergedKeys(a, b) {
     return new Set([...Object.keys(a), ...Object.keys(b)])
   }
