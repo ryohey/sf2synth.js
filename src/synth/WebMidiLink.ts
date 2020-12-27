@@ -78,7 +78,10 @@ export default class WebMidiLink {
   }
 
   onmessage(ev: MessageEvent) {
-    const msg = ev.data.split(',')
+    if (typeof ev.data !== "string") {
+      return
+    }
+    const msg = ev.data.split(",")
     const type = msg.shift()
 
     switch (type) {
