@@ -35,7 +35,7 @@ export default class MidiMessageHandler {
           listener.noteOff(channel, message[1], 0)
         }
         break
-      case 0xB0: // Control Change: Bn cc dd
+      case 0xb0: // Control Change: Bn cc dd
         switch (message[1]) {
           case 0x06: // Data Entry: Bn 06 dd
             switch (this.RpnMsb[channel]) {
@@ -44,18 +44,18 @@ export default class MidiMessageHandler {
                   case 0: // Pitch Bend Sensitivity
                     listener.pitchBendSensitivity(channel, message[2])
                     break
-                  default: 
+                  default:
                     break
                 }
                 break
-              default: 
+              default:
                 break
             }
             break
           case 0x07: // Volume Change: Bn 07 dd
             listener.volumeChange(channel, message[2])
             break
-          case 0x0A: // Panpot Change: Bn 0A dd
+          case 0x0a: // Panpot Change: Bn 0A dd
             listener.panpotChange(channel, message[2])
             break
           case 0x78: // All Sound Off: Bn 78 00
@@ -77,11 +77,12 @@ export default class MidiMessageHandler {
           // not supported
         }
         break
-      case 0xC0: // Program Change: Cn pp
+      case 0xc0: // Program Change: Cn pp
         listener.programChange(channel, message[1])
         break
-      case 0xE0: { // Pitch Bend
-        const bend = ((message[1] & 0x7f) | ((message[2] & 0x7f) << 7))
+      case 0xe0: {
+        // Pitch Bend
+        const bend = (message[1] & 0x7f) | ((message[2] & 0x7f) << 7)
         listener.pitchBend(channel, bend)
         break
       }
@@ -98,25 +99,27 @@ export default class MidiMessageHandler {
               case 0x04: // device control
                 // sub ID 2
                 switch (message[4]) {
-                  case 0x01: { // master volume
+                  case 0x01: {
+                    // master volume
                     const volume = message[5] + (message[6] << 7)
                     const MAX_VOLUME = 0x4000 - 1
                     listener.setMasterVolume(volume / MAX_VOLUME)
                     break
                   }
-                  default: 
+                  default:
                     break
                 }
                 break
-              default: 
+              default:
                 break
             }
             break
-          default: 
+          default:
             break
         }
         break
-      default: // not supported
+      default:
+        // not supported
         break
     }
   }

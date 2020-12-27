@@ -11,7 +11,6 @@ export interface InstrumentState {
 }
 
 export default class SynthesizerNote {
-
   //---------------------------------------------------------------------------
   // audio node
   //---------------------------------------------------------------------------
@@ -38,7 +37,12 @@ export default class SynthesizerNote {
   startTime: number
   computedPlaybackRate: number
 
-  constructor(ctx: AudioContext, destination: AudioNode, noteInfo: NoteInfo, instrument: InstrumentState) {
+  constructor(
+    ctx: AudioContext,
+    destination: AudioNode,
+    noteInfo: NoteInfo,
+    instrument: InstrumentState
+  ) {
     this.ctx = ctx
     this.destination = destination
     this.noteInfo = noteInfo
@@ -58,7 +62,10 @@ export default class SynthesizerNote {
   noteOn() {
     const { ctx, noteInfo } = this
 
-    const sample = noteInfo.sample.subarray(0, noteInfo.sample.length + noteInfo.end)
+    const sample = noteInfo.sample.subarray(
+      0,
+      noteInfo.sample.length + noteInfo.end
+    )
     this.audioBuffer = ctx.createBuffer(1, sample.length, noteInfo.sampleRate)
 
     const channelData = this.audioBuffer.getChannelData(0)
@@ -67,7 +74,7 @@ export default class SynthesizerNote {
     // buffer source
     const bufferSource = ctx.createBufferSource()
     bufferSource.buffer = this.audioBuffer
-    bufferSource.loop = (this.channel !== 9)
+    bufferSource.loop = this.channel !== 9
     bufferSource.loopStart = noteInfo.loopStart / noteInfo.sampleRate
     bufferSource.loopEnd = noteInfo.loopEnd / noteInfo.sampleRate
     bufferSource.onended = () => this.disconnect()
@@ -75,8 +82,8 @@ export default class SynthesizerNote {
     this.updatePitchBend(this.pitchBend)
 
     // audio node
-    const panner = this.panner = ctx.createPanner()
-    const output = this.gainOutput = ctx.createGain()
+    const panner = (this.panner = ctx.createPanner())
+    const output = (this.gainOutput = ctx.createGain())
     const outputGain = output.gain
 
     // filter
@@ -87,9 +94,9 @@ export default class SynthesizerNote {
     // panpot
     panner.panningModel = "equalpower"
     panner.setPosition(
-      Math.sin(this.panpot * Math.PI / 2),
+      Math.sin((this.panpot * Math.PI) / 2),
       0,
-      Math.cos(this.panpot * Math.PI / 2)
+      Math.cos((this.panpot * Math.PI) / 2)
     )
 
     //---------------------------------------------------------------------------
@@ -105,12 +112,18 @@ export default class SynthesizerNote {
     const attackVolume = this.volume * (this.velocity / 127)
     outputGain.setValueAtTime(0, now)
     outputGain.linearRampToValueAtTime(attackVolume, volAttackTime)
-    outputGain.linearRampToValueAtTime(attackVolume * (1 - noteInfo.volSustain), volDecay)
+    outputGain.linearRampToValueAtTime(
+      attackVolume * (1 - noteInfo.volSustain),
+      volDecay
+    )
 
     filter.Q.setValueAtTime(noteInfo.initialFilterQ / 10, now)
     const baseFreq = amountToFreq(noteInfo.initialFilterFc)
-    const peekFreq = amountToFreq(noteInfo.initialFilterFc + noteInfo.modEnvToFilterFc)
-    const sustainFreq = baseFreq + (peekFreq - baseFreq) * (1 - noteInfo.modSustain)
+    const peekFreq = amountToFreq(
+      noteInfo.initialFilterFc + noteInfo.modEnvToFilterFc
+    )
+    const sustainFreq =
+      baseFreq + (peekFreq - baseFreq) * (1 - noteInfo.modSustain)
     filter.frequency.setValueAtTime(baseFreq, now)
     filter.frequency.linearRampToValueAtTime(peekFreq, modAttackTime)
     filter.frequency.linearRampToValueAtTime(sustainFreq, modDecay)
@@ -151,7 +164,10 @@ export default class SynthesizerNote {
     output.gain.cancelScheduledValues(0)
     output.gain.linearRampToValueAtTime(0, volEndTime)
     bufferSource.playbackRate.cancelScheduledValues(0)
-    bufferSource.playbackRate.linearRampToValueAtTime(this.computedPlaybackRate, modEndTime)
+    bufferSource.playbackRate.linearRampToValueAtTime(
+      this.computedPlaybackRate,
+      modEndTime
+    )
 
     bufferSource.loop = false
     bufferSource.stop(volEndTime)
@@ -170,26 +186,31 @@ export default class SynthesizerNote {
     const start = this.startTime
     const modAttack = start + noteInfo.modAttack
     const modDecay = modAttack + noteInfo.modDecay
-    const peekPitch = computed * Math.pow(
-      Math.pow(2, 1 / 12),
-      noteInfo.modEnvToPitch * noteInfo.scaleTuning
-    )
+    const peekPitch =
+      computed *
+      Math.pow(
+        Math.pow(2, 1 / 12),
+        noteInfo.modEnvToPitch * noteInfo.scaleTuning
+      )
 
     playbackRate.cancelScheduledValues(0)
     playbackRate.setValueAtTime(computed, start)
     playbackRate.linearRampToValueAtTime(peekPitch, modAttack)
-    playbackRate.linearRampToValueAtTime(computed + (peekPitch - computed) * (1 - noteInfo.modSustain), modDecay)
+    playbackRate.linearRampToValueAtTime(
+      computed + (peekPitch - computed) * (1 - noteInfo.modSustain),
+      modDecay
+    )
   }
 
   updatePitchBend(pitchBend: number) {
-    this.computedPlaybackRate = this.playbackRate * Math.pow(
-      Math.pow(2, 1 / 12),
-      (
-        this.pitchBendSensitivity * (
-          pitchBend / (pitchBend < 0 ? 8192 : 8191)
-        )
-      ) * this.noteInfo.scaleTuning
-    )
+    this.computedPlaybackRate =
+      this.playbackRate *
+      Math.pow(
+        Math.pow(2, 1 / 12),
+        this.pitchBendSensitivity *
+          (pitchBend / (pitchBend < 0 ? 8192 : 8191)) *
+          this.noteInfo.scaleTuning
+      )
     this.schedulePlaybackRate()
   }
 }

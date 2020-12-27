@@ -53,7 +53,7 @@ export default class Synthesizer implements Listener {
 
   setMasterVolume(volume: number) {
     this.masterVolume = volume
-    this.gainMaster.gain.value = BASE_VOLUME * volume / 0x8000
+    this.gainMaster.gain.value = (BASE_VOLUME * volume) / 0x8000
   }
 
   noteOn(channelNumber: number, key: number, velocity: number) {
@@ -63,7 +63,12 @@ export default class Synthesizer implements Listener {
     const bankNumber = channelNumber === 9 ? 128 : this.bank
     const channel = this.channels[channelNumber]
 
-    const noteInfo = this.soundFont.getInstrumentKey(bankNumber, channel.instrument, key, velocity)
+    const noteInfo = this.soundFont.getInstrumentKey(
+      bankNumber,
+      channel.instrument,
+      key,
+      velocity
+    )
 
     if (!noteInfo) {
       return
@@ -80,11 +85,16 @@ export default class Synthesizer implements Listener {
       panpot: panpot,
       volume: channel.volume / 127,
       pitchBend: channel.pitchBend,
-      pitchBendSensitivity: channel.pitchBendSensitivity
+      pitchBendSensitivity: channel.pitchBendSensitivity,
     }
 
     // note on
-    const note = new SynthesizerNote(this.ctx, this.gainMaster, noteInfo, instrumentKey)
+    const note = new SynthesizerNote(
+      this.ctx,
+      this.gainMaster,
+      noteInfo,
+      instrumentKey
+    )
     note.noteOn()
     channel.currentNoteOn.push(note)
   }
@@ -96,7 +106,11 @@ export default class Synthesizer implements Listener {
     const bankNumber = channelNumber === 9 ? 128 : this.bank
     const channel = this.channels[channelNumber]
 
-    const instrumentKey = this.soundFont.getInstrumentKey(bankNumber, channel.instrument, key)
+    const instrumentKey = this.soundFont.getInstrumentKey(
+      bankNumber,
+      channel.instrument,
+      key
+    )
 
     if (!instrumentKey) {
       return

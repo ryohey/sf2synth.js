@@ -53,12 +53,12 @@ function mergeProgramNames(
   }
   const banks = mergedKeys(left, right)
   const result = {}
-  banks.forEach(bank => {
+  banks.forEach((bank) => {
     const l = left[bank] || []
     const r = right[bank] || []
-    const list: { [index: number]: string} = {}
+    const list: { [index: number]: string } = {}
     const programs = mergedKeys(l, r)
-    programs.forEach(p => {
+    programs.forEach((p) => {
       list[p] = `${l[p] || "None"} (${r[p] || "None"})`
     })
     result[bank] = list
@@ -67,12 +67,15 @@ function mergeProgramNames(
 }
 
 export default class View implements Listener {
-  private element: Element|null
+  private element: Element | null
   private drag: boolean = false
 
   draw(synth: Synthesizer): Element {
-    const element = this.element = render(`<div />`)
-    const programNames = mergeProgramNames(programNamesFromBankSet(synth.soundFont.getPresetNames()), ProgramNames)
+    const element = (this.element = render(`<div />`))
+    const programNames = mergeProgramNames(
+      synth.soundFont.getPresetNames(),
+      ProgramNames
+    )
 
     for (let i = 0; i < 16; ++i) {
       const bank = i !== 9 ? 0 : 128
@@ -80,14 +83,18 @@ export default class View implements Listener {
       const item = renderInstrument(program)
 
       const channel = i
-      const select = item.querySelector('select')
+      const select = item.querySelector("select")
       if (select) {
-        select.addEventListener('change', event => {
-          const target = event.target as HTMLSelectElement
-          const program = parseInt(target.value, 10)
-          this.programChange(channel, program)
-          synth.programChange(channel, program)
-        }, false)
+        select.addEventListener(
+          "change",
+          (event) => {
+            const target = event.target as HTMLSelectElement
+            const program = parseInt(target.value, 10)
+            this.programChange(channel, program)
+            synth.programChange(channel, program)
+          },
+          false
+        )
         select.selectedIndex = synth.channels[i].instrument
       }
 
@@ -95,30 +102,30 @@ export default class View implements Listener {
       for (let j = 0; j < 128; ++j) {
         const key = j
 
-        notes[j].addEventListener('mousedown', event => {
+        notes[j].addEventListener("mousedown", (event) => {
           event.preventDefault()
           this.drag = true
           this.noteOn(channel, key, 127)
           synth.noteOn(channel, key, 127)
 
-          const onMouseUp = event => {
-            document.removeEventListener('mouseup', onMouseUp)
+          const onMouseUp = (event) => {
+            document.removeEventListener("mouseup", onMouseUp)
             event.preventDefault()
             this.drag = false
             this.noteOff(channel, key, 0)
             synth.noteOff(channel, key, 0)
           }
-          
-          document.addEventListener('mouseup', onMouseUp)
+
+          document.addEventListener("mouseup", onMouseUp)
         })
-        notes[j].addEventListener('mouseover', event => {
+        notes[j].addEventListener("mouseover", (event) => {
           event.preventDefault()
           if (this.drag) {
             this.noteOn(channel, key, 127)
             synth.noteOn(channel, key, 127)
           }
         })
-        notes[j].addEventListener('mouseout', event => {
+        notes[j].addEventListener("mouseout", (event) => {
           event.preventDefault()
           this.noteOff(channel, key, 0)
           synth.noteOff(channel, key, 0)
@@ -140,14 +147,14 @@ export default class View implements Listener {
     this.element = null
   }
 
-  private getInstrumentElement(channel: number): Element|null {
+  private getInstrumentElement(channel: number): Element | null {
     if (!this.element) {
       return null
     }
     return this.element.querySelectorAll(".instrument")[channel]
   }
 
-  private getKeyElement(channel: number, key: number): Element|null {
+  private getKeyElement(channel: number, key: number): Element | null {
     const elem = this.getInstrumentElement(channel)
     if (!elem) {
       return null
@@ -155,7 +162,10 @@ export default class View implements Listener {
     return elem.querySelectorAll(".key")[key]
   }
 
-  private findInstrumentElement(channel: number, query: string): Element|null {
+  private findInstrumentElement(
+    channel: number,
+    query: string
+  ): Element | null {
     const elem = this.getInstrumentElement(channel)
     if (!elem) {
       return null
@@ -166,19 +176,21 @@ export default class View implements Listener {
   noteOn(channel: number, key: number, _velocity: number) {
     const element = this.getKeyElement(channel, key)
     if (element) {
-      element.classList.add('note-on')
+      element.classList.add("note-on")
     }
   }
 
   noteOff(channel: number, key: number, _velocity: number) {
     const element = this.getKeyElement(channel, key)
     if (element) {
-      element.classList.remove('note-on')
+      element.classList.remove("note-on")
     }
   }
 
   programChange(channel: number, instrument: number) {
-    const select = this.findInstrumentElement(channel, ".program select") as HTMLSelectElement|undefined
+    const select = this.findInstrumentElement(channel, ".program select") as
+      | HTMLSelectElement
+      | undefined
     if (select) {
       select.value = `${instrument}`
     }
@@ -212,12 +224,9 @@ export default class View implements Listener {
     }
   }
 
-  allSoundOff(_channelNumber: number) {
-  }
+  allSoundOff(_channelNumber: number) {}
 
-  setMasterVolume(_volume: number) {
-  }
+  setMasterVolume(_volume: number) {}
 
-  resetAllControl(_channelNumber: number) {
-  }
+  resetAllControl(_channelNumber: number) {}
 }

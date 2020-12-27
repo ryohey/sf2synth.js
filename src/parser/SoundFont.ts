@@ -21,11 +21,19 @@ export default class SoundFont {
     if (nextPresetHeaderIndex < this.parsed.presetHeaders.length) {
       // 次の preset までのすべての generator を取得する
       const nextPresetHeader = this.parsed.presetHeaders[nextPresetHeaderIndex]
-      const nextPresetBag = this.parsed.presetZone[nextPresetHeader.presetBagIndex]
-      presetGenerators = this.parsed.presetGenerators.slice(presetBag.presetGeneratorIndex, nextPresetBag.presetGeneratorIndex)
+      const nextPresetBag = this.parsed.presetZone[
+        nextPresetHeader.presetBagIndex
+      ]
+      presetGenerators = this.parsed.presetGenerators.slice(
+        presetBag.presetGeneratorIndex,
+        nextPresetBag.presetGeneratorIndex
+      )
     } else {
       // 最後の preset だった場合は最後まで取得する
-      presetGenerators = this.parsed.presetGenerators.slice(presetBag.presetGeneratorIndex, this.parsed.presetGenerators.length)
+      presetGenerators = this.parsed.presetGenerators.slice(
+        presetBag.presetGeneratorIndex,
+        this.parsed.presetGenerators.length
+      )
     }
 
     return presetGenerators
@@ -33,24 +41,47 @@ export default class SoundFont {
 
   getInstrumentZone(instrumentZoneIndex: number) {
     const instrumentBag = this.parsed.instrumentZone[instrumentZoneIndex]
-    const nextInstrumentBag = this.parsed.instrumentZone[instrumentZoneIndex + 1]
+    const nextInstrumentBag = this.parsed.instrumentZone[
+      instrumentZoneIndex + 1
+    ]
     const generatorIndex = instrumentBag.instrumentGeneratorIndex
-    const nextGeneratorIndex = nextInstrumentBag ? nextInstrumentBag.instrumentGeneratorIndex : this.parsed.instrumentGenerators.length
-    const generators = this.parsed.instrumentGenerators.slice(generatorIndex, nextGeneratorIndex)
+    const nextGeneratorIndex = nextInstrumentBag
+      ? nextInstrumentBag.instrumentGeneratorIndex
+      : this.parsed.instrumentGenerators.length
+    const generators = this.parsed.instrumentGenerators.slice(
+      generatorIndex,
+      nextGeneratorIndex
+    )
     return createInstrumentZone(generators)
   }
 
   getInstrumentZoneIndexes(instrumentID: number): number[] {
     const instrument = this.parsed.instruments[instrumentID]
     const nextInstrument = this.parsed.instruments[instrumentID + 1]
-    return arrayRange(instrument.instrumentBagIndex, nextInstrument ? nextInstrument.instrumentBagIndex : this.parsed.instrumentZone.length)
+    return arrayRange(
+      instrument.instrumentBagIndex,
+      nextInstrument
+        ? nextInstrument.instrumentBagIndex
+        : this.parsed.instrumentZone.length
+    )
   }
 
-  getInstrumentKey(bankNumber, instrumentNumber, key, velocity = 100): NoteInfo|null {
-    const presetHeaderIndex = this.parsed.presetHeaders.findIndex(p => p.preset === instrumentNumber && p.bank === bankNumber)
-    
+  getInstrumentKey(
+    bankNumber,
+    instrumentNumber,
+    key,
+    velocity = 100
+  ): NoteInfo | null {
+    const presetHeaderIndex = this.parsed.presetHeaders.findIndex(
+      (p) => p.preset === instrumentNumber && p.bank === bankNumber
+    )
+
     if (presetHeaderIndex < 0) {
-      console.warn("preset not found: bank=%s instrument=%s", bankNumber, instrumentNumber)
+      console.warn(
+        "preset not found: bank=%s instrument=%s",
+        bankNumber,
+        instrumentNumber
+      )
       return null
     }
 
@@ -58,21 +89,28 @@ export default class SoundFont {
 
     // Last Preset Generator must be instrument
     const lastPresetGenertor = presetGenerators[presetGenerators.length - 1]
-    if (lastPresetGenertor.type !== "instrument" || isNaN(Number(lastPresetGenertor.value))) {
-      throw new Error("Invalid SoundFont: invalid preset generator: expect instrument")
+    if (
+      lastPresetGenertor.type !== "instrument" ||
+      isNaN(Number(lastPresetGenertor.value))
+    ) {
+      throw new Error(
+        "Invalid SoundFont: invalid preset generator: expect instrument"
+      )
     }
     const instrumentID = lastPresetGenertor.value as number
-    const instrumentZones = this.getInstrumentZoneIndexes(instrumentID).map(i => this.getInstrumentZone(i))
+    const instrumentZones = this.getInstrumentZoneIndexes(
+      instrumentID
+    ).map((i) => this.getInstrumentZone(i))
 
     // 最初のゾーンがsampleID を持たなければ global instrument zone
-    let globalInstrumentZone: any|undefined
+    let globalInstrumentZone: any | undefined
     const firstInstrumentZone = instrumentZones[0]
     if (firstInstrumentZone.sampleID === undefined) {
       globalInstrumentZone = instrumentZones[0]
     }
 
     // keyRange と velRange がマッチしている Generator を探す
-    const instrumentZone = instrumentZones.find(i => {
+    const instrumentZone = instrumentZones.find((i) => {
       if (i === globalInstrumentZone) {
         return false // global zone を除外
       }
@@ -89,22 +127,33 @@ export default class SoundFont {
 
       return isInKeyRange && isInVelRange
     })
-    
+
     if (!instrumentZone) {
-      console.warn("instrument not found: bank=%s instrument=%s", bankNumber, instrumentNumber)
+      console.warn(
+        "instrument not found: bank=%s instrument=%s",
+        bankNumber,
+        instrumentNumber
+      )
       return null
     }
 
-    if (instrumentZone.sampleID === undefined) { 
+    if (instrumentZone.sampleID === undefined) {
       throw new Error("Invalid SoundFont: sampleID not found")
     }
-    
-    const gen = {...defaultInstrumentZone, ...removeUndefined(globalInstrumentZone || {}), ...removeUndefined(instrumentZone)}
+
+    const gen = {
+      ...defaultInstrumentZone,
+      ...removeUndefined(globalInstrumentZone || {}),
+      ...removeUndefined(instrumentZone),
+    }
 
     const sample = this.parsed.samples[gen.sampleID!]
     const sampleHeader = this.parsed.sampleHeaders[gen.sampleID!]
     const tune = gen.coarseTune + gen.fineTune / 100
-    const basePitch = tune + (sampleHeader.pitchCorrection / 100) - (gen.overridingRootKey || sampleHeader.originalPitch)
+    const basePitch =
+      tune +
+      sampleHeader.pitchCorrection / 100 -
+      (gen.overridingRootKey || sampleHeader.originalPitch)
     const scaleTuning = gen.scaleTuning / 100
 
     return {
@@ -112,7 +161,8 @@ export default class SoundFont {
       sampleRate: sampleHeader.sampleRate,
       sampleName: sampleHeader.sampleName,
       scaleTuning,
-      playbackRate: (key) => Math.pow(Math.pow(2, 1 / 12), (key + basePitch) * scaleTuning),
+      playbackRate: (key) =>
+        Math.pow(Math.pow(2, 1 / 12), (key + basePitch) * scaleTuning),
       keyRange: gen.keyRange,
       velRange: gen.velRange,
       volAttack: convertTime(gen.volAttack),
@@ -127,26 +177,26 @@ export default class SoundFont {
       modEnvToFilterFc: gen.modEnvToFilterFc, // semitone (100 cent)
       initialFilterQ: gen.initialFilterQ,
       initialFilterFc: gen.initialFilterFc,
-      freqVibLFO: gen.freqVibLFO ? convertTime(gen.freqVibLFO) * 8.176 : undefined,
+      freqVibLFO: gen.freqVibLFO
+        ? convertTime(gen.freqVibLFO) * 8.176
+        : undefined,
       start: gen.startAddrsCoarseOffset * 32768 + gen.startAddrsOffset,
       end: gen.endAddrsCoarseOffset * 32768 + gen.endAddrsOffset,
-      loopStart: (
+      loopStart:
         sampleHeader.loopStart +
         gen.startloopAddrsCoarseOffset * 32768 +
-        gen.startloopAddrsOffset
-      ),
-      loopEnd: (
+        gen.startloopAddrsOffset,
+      loopEnd:
         sampleHeader.loopEnd +
         gen.endloopAddrsCoarseOffset * 32768 +
-        gen.endloopAddrsOffset
-      ),
+        gen.endloopAddrsOffset,
     }
   }
 
   // presetNames[bankNumber][presetNumber] = presetName
   getPresetNames() {
-    const bank: {[index: number]: {[index: number]: string}} = {}
-    this.parsed.presetHeaders.forEach(preset => {
+    const bank: { [index: number]: { [index: number]: string } } = {}
+    this.parsed.presetHeaders.forEach((preset) => {
       if (!bank[preset.bank]) {
         bank[preset.bank] = {}
       }
@@ -163,7 +213,7 @@ export function convertTime(value) {
 
 function removeUndefined(obj) {
   const result = {}
-  Object.keys(obj).forEach(key => {
+  Object.keys(obj).forEach((key) => {
     if (obj[key] !== undefined) {
       result[key] = obj[key]
     }
@@ -172,13 +222,13 @@ function removeUndefined(obj) {
 }
 
 function arrayRange(start, end) {
-  return Array.from({length: end - start}, (_, k) => k + start);
+  return Array.from({ length: end - start }, (_, k) => k + start)
 }
 
 // ひとつの instrument に対応する Generator の配列から使いやすくしたオブジェクトを返す
 function createInstrumentZone(instrumentGenerators: GeneratorList[]) {
-  function getValue(type: string): number|undefined {
-    const generator = instrumentGenerators.find(g => g.type === type)
+  function getValue(type: string): number | undefined {
+    const generator = instrumentGenerators.find((g) => g.type === type)
     if (!generator) {
       return undefined
     }
@@ -187,11 +237,14 @@ function createInstrumentZone(instrumentGenerators: GeneratorList[]) {
     }
     return generator.value as number
   }
-  
+
   // First Instrument Generator must be keyRange
   const firstInstrumentGenerator = instrumentGenerators[0]
-  let keyRange: RangeValue|undefined
-  if (firstInstrumentGenerator && firstInstrumentGenerator.type === "keyRange") {
+  let keyRange: RangeValue | undefined
+  if (
+    firstInstrumentGenerator &&
+    firstInstrumentGenerator.type === "keyRange"
+  ) {
     if (!(firstInstrumentGenerator.value instanceof RangeValue)) {
       throw new Error("Invalid SoundFont: keyRange is not ranged value")
     }
@@ -200,8 +253,11 @@ function createInstrumentZone(instrumentGenerators: GeneratorList[]) {
 
   // Second Instrument Generator could be velRange
   const secondInstrumentGenerator = instrumentGenerators[1]
-  let velRange: RangeValue|undefined
-  if (secondInstrumentGenerator && secondInstrumentGenerator.type === "velRange") {
+  let velRange: RangeValue | undefined
+  if (
+    secondInstrumentGenerator &&
+    secondInstrumentGenerator.type === "velRange"
+  ) {
     if (!(secondInstrumentGenerator.value instanceof RangeValue)) {
       throw new Error("Invalid SoundFont: velRange is not ranged value")
     }
@@ -209,8 +265,9 @@ function createInstrumentZone(instrumentGenerators: GeneratorList[]) {
   }
 
   // Last Instrument Generator must be sampleID
-  const lastInstrumentGenerator = instrumentGenerators[instrumentGenerators.length - 1]
-  let sampleID: number|undefined
+  const lastInstrumentGenerator =
+    instrumentGenerators[instrumentGenerators.length - 1]
+  let sampleID: number | undefined
   if (lastInstrumentGenerator && lastInstrumentGenerator.type === "sampleID") {
     if (isNaN(Number(lastInstrumentGenerator.value))) {
       throw new Error("Invalid SoundFont: sampleID is not number")
@@ -303,7 +360,7 @@ export interface NoteInfo {
   modEnvToFilterFc: number
   initialFilterFc: number
   initialFilterQ: number
-  freqVibLFO: number|undefined
+  freqVibLFO: number | undefined
   keyRange: RangeValue
-  velRange: RangeValue|undefined
+  velRange: RangeValue | undefined
 }

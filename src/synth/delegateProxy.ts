@@ -4,9 +4,9 @@ export default function delegateProxy<T extends Object>(targets: T[]) {
     get(target, propKey, _receiver) {
       return () => {
         targets
-          .map(t => t[propKey].bind(target))
-          .forEach(f => f(...arguments))
+          .map((t) => t[propKey].bind(target))
+          .forEach((f) => f(...arguments))
       }
-    }
+    },
   })
 }

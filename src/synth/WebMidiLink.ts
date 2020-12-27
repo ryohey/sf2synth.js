@@ -13,17 +13,25 @@ export default class WebMidiLink {
   constructor() {
     this.midiMessageHandler = new MidiMessageHandler()
 
-    window.addEventListener('DOMContentLoaded', function() {
-      this.ready = true
-    }.bind(this), false)
+    window.addEventListener(
+      "DOMContentLoaded",
+      function () {
+        this.ready = true
+      }.bind(this),
+      false
+    )
   }
 
   setup(url) {
     if (!this.ready) {
-      window.addEventListener('DOMContentLoaded', function onload() {
-        window.removeEventListener('DOMContentLoaded', onload, false)
-        this.load(url)
-      }.bind(this), false)
+      window.addEventListener(
+        "DOMContentLoaded",
+        function onload() {
+          window.removeEventListener("DOMContentLoaded", onload, false)
+          this.load(url)
+        }.bind(this),
+        false
+      )
     } else {
       this.load(url)
     }
@@ -32,17 +40,21 @@ export default class WebMidiLink {
   load(url) {
     const xhr = new XMLHttpRequest()
 
-    xhr.open('GET', url, true)
-    xhr.responseType = 'arraybuffer'
+    xhr.open("GET", url, true)
+    xhr.responseType = "arraybuffer"
 
-    xhr.addEventListener('load', function(ev) {
-      const xhr = ev.target as XMLHttpRequest
+    xhr.addEventListener(
+      "load",
+      function (ev) {
+        const xhr = ev.target as XMLHttpRequest
 
-      this.onload(xhr.response)
-      if (typeof this.loadCallback === 'function') {
-        this.loadCallback(xhr.response)
-      }
-    }.bind(this), false)
+        this.onload(xhr.response)
+        if (typeof this.loadCallback === "function") {
+          this.loadCallback(xhr.response)
+        }
+      }.bind(this),
+      false
+    )
 
     xhr.send()
   }
@@ -60,10 +72,10 @@ export default class WebMidiLink {
       synth = this.synth = new Synthesizer(ctx)
       synth.connect(ctx.destination)
       synth.loadSoundFont(input)
-      const view = this.view = new View()
+      const view = (this.view = new View())
       document.body.querySelector(".synth")!.appendChild(view.draw(synth))
-      this.midiMessageHandler.listener = delegateProxy<Listener>([synth, view]) 
-      window.addEventListener('message', this.onmessage.bind(this), false)
+      this.midiMessageHandler.listener = delegateProxy<Listener>([synth, view])
+      window.addEventListener("message", this.onmessage.bind(this), false)
     } else {
       synth = this.synth
       synth.loadSoundFont(input)
@@ -71,9 +83,9 @@ export default class WebMidiLink {
 
     // link ready
     if (window.opener) {
-      window.opener.postMessage("link,ready", '*')
+      window.opener.postMessage("link,ready", "*")
     } else if (window.parent !== window) {
-      window.parent.postMessage("link,ready", '*')
+      window.parent.postMessage("link,ready", "*")
     }
   }
 
@@ -85,34 +97,34 @@ export default class WebMidiLink {
     const type = msg.shift()
 
     switch (type) {
-      case 'midi':
+      case "midi":
         this.midiMessageHandler.processMidiMessage(
-          msg.map(function(hex) {
+          msg.map(function (hex) {
             return parseInt(hex, 16)
           })
         )
         break
-      case 'link':
+      case "link":
         const command = msg.shift()
         switch (command) {
-          case 'reqpatch':
+          case "reqpatch":
             // TODO: dummy data
             if (window.opener) {
-              window.opener.postMessage("link,patch", '*')
+              window.opener.postMessage("link,patch", "*")
             } else if (window.parent !== window) {
-              window.parent.postMessage("link,patch", '*')
+              window.parent.postMessage("link,patch", "*")
             }
             break
-          case 'setpatch':
+          case "setpatch":
             // TODO: NOP
             break
           default:
-            console.error('unknown link message:', command)
+            console.error("unknown link message:", command)
             break
         }
         break
       default:
-        console.error('unknown message type')
+        console.error("unknown message type")
     }
   }
 

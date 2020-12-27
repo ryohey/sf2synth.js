@@ -127,8 +127,9 @@ const ProgramNames: { [index: number]: string[] } = {
     "Telephone Ring",
     "Helicopter",
     "Applause",
-    "Gunshot"
-  ], 128: ["Rhythm Track"]
+    "Gunshot",
+  ],
+  128: ["Rhythm Track"],
 }
 
 export default ProgramNames

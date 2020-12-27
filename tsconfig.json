@@ -11,10 +11,5 @@
     "outDir": "bin",
     "moduleResolution": "node"
   },
-  "exclude": [
-    "bin",
-    "public",
-    "node_modules",
-    "**/*.test.ts"
-  ]
+  "exclude": ["bin", "public", "node_modules", "**/*.test.ts"]
 }
