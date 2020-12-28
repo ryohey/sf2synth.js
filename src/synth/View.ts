@@ -26,6 +26,7 @@ function renderProgramOptions(
   const names = programNames[bank]
   for (let i in names) {
     const name = names[i]
+    if (name == "None (None)") continue
     html += `<option value="${i}">${i}: ${name}</option>`
   }
   return `<select>${html}</select>`
@@ -69,6 +70,8 @@ function mergeProgramNames(
 }
 
 export default class View implements Listener {
+  isXG: boolean
+  isGS: boolean
   private element: Element | null
   private drag: boolean = false
 
@@ -231,4 +234,14 @@ export default class View implements Listener {
   setMasterVolume(_volume: number) {}
 
   resetAllControl(_channelNumber: number) {}
+  init() {}
+  expression(_value: number) {}
+
+  setPercussionPart(_channelNumber: number, _sw: boolean) {}
+
+  hold(_channelNumber: number, _sw: boolean) {}
+
+  setReverbDepth(_channelNumber: number, _depth: number) {}
+
+  releaseTime(_channelNumber: number, _value: number) {}
 }

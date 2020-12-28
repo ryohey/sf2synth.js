@@ -2,6 +2,8 @@ import { WebMidiLink } from "../synth"
 
 const wml = new WebMidiLink()
 wml.setLoadCallback(() => {
-  // ロード完了時の処理
+  console.info("Loaded.")
 })
-wml.setup("TestSoundFont.sf2")
+wml.setup(
+  "//cdn.rawgit.com/logue/smfplayer.js/gh-pages/Yamaha%20XG%20Sound%20Set.sf2"
+)

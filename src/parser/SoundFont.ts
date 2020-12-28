@@ -160,26 +160,11 @@ export default class SoundFont {
       sample,
       sampleRate: sampleHeader.sampleRate,
       sampleName: sampleHeader.sampleName,
-      scaleTuning,
+      sampleModes: gen.sampleModes,
       playbackRate: (key: number) =>
         Math.pow(Math.pow(2, 1 / 12), (key + basePitch) * scaleTuning),
-      keyRange: gen.keyRange,
-      velRange: gen.velRange,
-      volAttack: convertTime(gen.volAttack),
-      volDecay: convertTime(gen.volDecay),
-      volSustain: gen.volSustain / 1000,
-      volRelease: convertTime(gen.volRelease),
-      modAttack: convertTime(gen.modAttack),
-      modDecay: convertTime(gen.modDecay),
-      modSustain: gen.modSustain / 1000,
-      modRelease: convertTime(gen.modRelease),
       modEnvToPitch: gen.modEnvToPitch / 100, // cent
-      modEnvToFilterFc: gen.modEnvToFilterFc, // semitone (100 cent)
-      initialFilterQ: gen.initialFilterQ,
-      initialFilterFc: gen.initialFilterFc,
-      freqVibLFO: gen.freqVibLFO
-        ? convertTime(gen.freqVibLFO) * 8.176
-        : undefined,
+      scaleTuning,
       start: gen.startAddrsCoarseOffset * 32768 + gen.startAddrsOffset,
       end: gen.endAddrsCoarseOffset * 32768 + gen.endAddrsOffset,
       loopStart:
@@ -190,6 +175,30 @@ export default class SoundFont {
         sampleHeader.loopEnd +
         gen.endloopAddrsCoarseOffset * 32768 +
         gen.endloopAddrsOffset,
+      volDelay: convertTime(gen.volDelay),
+      volAttack: convertTime(gen.volAttack),
+      volHold: convertTime(gen.volHold),
+      volDecay: convertTime(gen.volDecay),
+      volSustain: gen.volSustain / 1000,
+      volRelease: convertTime(gen.volRelease),
+      modDelay: convertTime(gen.modDelay),
+      modAttack: convertTime(gen.modAttack),
+      modHold: convertTime(gen.modHold),
+      modDecay: convertTime(gen.modDecay),
+      modSustain: gen.modSustain / 1000,
+      modRelease: convertTime(gen.modRelease),
+      keyRange: gen.keyRange,
+      velRange: gen.velRange,
+      initialFilterFc: gen.initialFilterFc,
+      modEnvToFilterFc: gen.modEnvToFilterFc, // semitone (100 cent)
+      initialFilterQ: gen.initialFilterQ,
+      initialAttenuation: gen.initialAttenuation,
+      freqVibLFO: gen.freqVibLFO
+        ? convertTime(gen.freqVibLFO) * 8.176
+        : undefined,
+      pan: gen.pan,
+      mute: false,
+      releaseTime: gen.releaseTime,
     }
   }
 
@@ -281,10 +290,12 @@ function createInstrumentZone(instrumentGenerators: GeneratorList[]) {
     sampleID, // global zone の場合だけない
     volAttack: getValue("attackVolEnv"),
     volDecay: getValue("decayVolEnv"),
+    volDelay: getValue("delayVolEnv"),
     volSustain: getValue("sustainVolEnv"),
     volRelease: getValue("releaseVolEnv"),
     modAttack: getValue("attackModEnv"),
     modDecay: getValue("decayModEnv"),
+    modDelay: getValue("delayModEnv"),
     modSustain: getValue("sustainModEnv"),
     modRelease: getValue("releaseModEnv"),
     modEnvToPitch: getValue("modEnvToPitch"),
@@ -300,10 +311,13 @@ function createInstrumentZone(instrumentGenerators: GeneratorList[]) {
     startloopAddrsOffset: getValue("startloopAddrsOffset"),
     startloopAddrsCoarseOffset: getValue("startloopAddrsCoarseOffset"),
     endloopAddrsOffset: getValue("endloopAddrsOffset"),
+    initialAttenuation: getValue("initialAttenuation"),
     endloopAddrsCoarseOffset: getValue("endloopAddrsCoarseOffset"),
     overridingRootKey: getValue("overridingRootKey"),
     initialFilterQ: getValue("initialFilterQ"),
     initialFilterFc: getValue("initialFilterFc"),
+    sampleModes: getValue("sampleModes"),
+    pan: getValue("pan"),
   }
 }
 
@@ -311,14 +325,18 @@ const defaultInstrumentZone = {
   keyRange: new RangeValue(0, 127),
   velRange: new RangeValue(0, 127),
   sampleID: undefined,
+  volDelay: -12000,
   volAttack: -12000,
   volDecay: -12000,
+  volHold: -12000,
   volSustain: 0,
   volRelease: -12000,
+  modDelay: -12000,
   modAttack: -12000,
+  modHold: -12000,
   modDecay: -12000,
   modSustain: 0,
-  modRelease: 0,
+  modRelease: -12000,
   modEnvToPitch: 0,
   modEnvToFilterFc: 0,
   coarseTune: 0,
@@ -331,36 +349,50 @@ const defaultInstrumentZone = {
   endAddrsCoarseOffset: 0,
   startloopAddrsOffset: 0,
   startloopAddrsCoarseOffset: 0,
+  initialAttenuation: 0,
   endloopAddrsOffset: 0,
   endloopAddrsCoarseOffset: 0,
   overridingRootKey: undefined,
   initialFilterQ: 1,
   initialFilterFc: 13500,
+  sampleModes: 0,
+  mute: false,
+  releaseTime: 64,
+  pan: undefined,
 }
 
 export interface NoteInfo {
   sample: Int16Array
   sampleRate: number
   sampleName: string
+  sampleModes: number
+  playbackRate: Function
+  modEnvToPitch: number
+  scaleTuning: number
   start: number
   end: number
-  scaleTuning: number
-  playbackRate: (key: number) => number
   loopStart: number
   loopEnd: number
+  volDelay: number
   volAttack: number
+  volHold: number
   volDecay: number
   volSustain: number
   volRelease: number
+  modDelay: number
   modAttack: number
+  modHold: number
   modDecay: number
   modSustain: number
   modRelease: number
-  modEnvToPitch: number
-  modEnvToFilterFc: number
   initialFilterFc: number
+  modEnvToFilterFc: number
   initialFilterQ: number
+  initialAttenuation: number
   freqVibLFO: number | undefined
+  mute: boolean
+  releaseTime: number
+  pan: number | undefined
   keyRange: RangeValue
   velRange: RangeValue | undefined
 }
