@@ -15,23 +15,18 @@ export default class WebMidiLink {
 
     window.addEventListener(
       "DOMContentLoaded",
-      function () {
-        this.ready = true
-      }.bind(this),
+      () => (this.ready = true),
       false
     )
   }
 
   setup(url: string) {
     if (!this.ready) {
-      window.addEventListener(
-        "DOMContentLoaded",
-        function onload() {
-          window.removeEventListener("DOMContentLoaded", onload, false)
-          this.load(url)
-        }.bind(this),
-        false
-      )
+      const onload = () => {
+        window.removeEventListener("DOMContentLoaded", onload, false)
+        this.load(url)
+      }
+      window.addEventListener("DOMContentLoaded", onload, false)
     } else {
       this.load(url)
     }
