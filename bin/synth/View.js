@@ -18,6 +18,8 @@ function renderProgramOptions(programNames, bank) {
     const names = programNames[bank];
     for (let i in names) {
         const name = names[i];
+        if (name == "None (None)")
+            continue;
         html += `<option value="${i}">${i}: ${name}</option>`;
     }
     return `<select>${html}</select>`;
@@ -34,28 +36,18 @@ function renderInstrument(program) {
     </div>
   `);
 }
-function objectMap(o, func) {
-    const result = {};
-    Object.keys(o).forEach(key => {
-        result[key] = func(o[key]);
-    });
-    return result;
-}
-function programNamesFromBankSet(bankSet) {
-    return objectMap(bankSet, bank => objectMap(bank, s => s.name));
-}
 function mergeProgramNames(left, right) {
     function mergedKeys(a, b) {
-        return new Set([...Object.keys(a), ...Object.keys(b)]);
+        return Array.from(new Set([...Object.keys(a), ...Object.keys(b)])).map(Number);
     }
     const banks = mergedKeys(left, right);
     const result = {};
-    banks.forEach(bank => {
+    banks.forEach((bank) => {
         const l = left[bank] || [];
         const r = right[bank] || [];
         const list = {};
         const programs = mergedKeys(l, r);
-        programs.forEach(p => {
+        programs.forEach((p) => {
             list[p] = `${l[p] || "None"} (${r[p] || "None"})`;
         });
         result[bank] = list;
@@ -67,16 +59,16 @@ export default class View {
         this.drag = false;
     }
     draw(synth) {
-        const element = this.element = render(`<div />`);
-        const programNames = mergeProgramNames(programNamesFromBankSet(synth.soundFont.getPresetNames()), ProgramNames);
+        const element = (this.element = render(`<div />`));
+        const programNames = mergeProgramNames(synth.soundFont.getPresetNames(), ProgramNames);
         for (let i = 0; i < 16; ++i) {
             const bank = i !== 9 ? 0 : 128;
             const program = renderProgramOptions(programNames, bank);
             const item = renderInstrument(program);
             const channel = i;
-            const select = item.querySelector('select');
+            const select = item.querySelector("select");
             if (select) {
-                select.addEventListener('change', event => {
+                select.addEventListener("change", (event) => {
                     const target = event.target;
                     const program = parseInt(target.value, 10);
                     this.programChange(channel, program);
@@ -87,28 +79,28 @@ export default class View {
             const notes = item.querySelectorAll(".key");
             for (let j = 0; j < 128; ++j) {
                 const key = j;
-                notes[j].addEventListener('mousedown', event => {
+                notes[j].addEventListener("mousedown", (event) => {
                     event.preventDefault();
                     this.drag = true;
                     this.noteOn(channel, key, 127);
                     synth.noteOn(channel, key, 127);
-                    const onMouseUp = event => {
-                        document.removeEventListener('mouseup', onMouseUp);
+                    const onMouseUp = (event) => {
+                        document.removeEventListener("mouseup", onMouseUp);
                         event.preventDefault();
                         this.drag = false;
                         this.noteOff(channel, key, 0);
                         synth.noteOff(channel, key, 0);
                     };
-                    document.addEventListener('mouseup', onMouseUp);
+                    document.addEventListener("mouseup", onMouseUp);
                 });
-                notes[j].addEventListener('mouseover', event => {
+                notes[j].addEventListener("mouseover", (event) => {
                     event.preventDefault();
                     if (this.drag) {
                         this.noteOn(channel, key, 127);
                         synth.noteOn(channel, key, 127);
                     }
                 });
-                notes[j].addEventListener('mouseout', event => {
+                notes[j].addEventListener("mouseout", (event) => {
                     event.preventDefault();
                     this.noteOff(channel, key, 0);
                     synth.noteOff(channel, key, 0);
@@ -148,13 +140,13 @@ export default class View {
     noteOn(channel, key, _velocity) {
         const element = this.getKeyElement(channel, key);
         if (element) {
-            element.classList.add('note-on');
+            element.classList.add("note-on");
         }
     }
     noteOff(channel, key, _velocity) {
         const element = this.getKeyElement(channel, key);
         if (element) {
-            element.classList.remove('note-on');
+            element.classList.remove("note-on");
         }
     }
     programChange(channel, instrument) {
@@ -187,11 +179,14 @@ export default class View {
             element.textContent = `${sensitivity}`;
         }
     }
-    allSoundOff(_channelNumber) {
-    }
-    setMasterVolume(_volume) {
-    }
-    resetAllControl(_channelNumber) {
-    }
+    allSoundOff(_channelNumber) { }
+    setMasterVolume(_volume) { }
+    resetAllControl(_channelNumber) { }
+    init() { }
+    expression(_value) { }
+    setPercussionPart(_channelNumber, _sw) { }
+    hold(_channelNumber, _sw) { }
+    setReverbDepth(_channelNumber, _depth) { }
+    releaseTime(_channelNumber, _value) { }
 }
 //# sourceMappingURL=View.js.map

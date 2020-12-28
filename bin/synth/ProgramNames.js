@@ -1,7 +1,11 @@
 const ProgramNames = {
+    /**
+     * GM Synth set
+     * http://amei.or.jp/midistandardcommittee/Recommended_Practice/GM2_japanese.pdf
+     */
     0: [
         "Acoustic Piano",
-        "Bright Piano",
+        "Bright Acoustic Piano",
         "Electric Grand Piano",
         "Honky-tonk Piano",
         "Electric Piano",
@@ -31,7 +35,7 @@ const ProgramNames = {
         "Electric Guitar (muted)",
         "Overdriven Guitar",
         "Distortion Guitar",
-        "Guitar harmonics",
+        "Guitar Harmonics",
         "Acoustic Bass",
         "Electric Bass (finger)",
         "Electric Bass (pick)",
@@ -88,7 +92,7 @@ const ProgramNames = {
         "Lead 6 (voice)",
         "Lead 7 (fifths)",
         "Lead 8 (bass + lead)",
-        "Pad 1 (Fantasia)",
+        "Pad 1 (new age)",
         "Pad 2 (warm)",
         "Pad 3 (polysynth)",
         "Pad 4 (choir)",
@@ -127,8 +131,22 @@ const ProgramNames = {
         "Telephone Ring",
         "Helicopter",
         "Applause",
-        "Gunshot"
-    ], 128: ["Rhythm Track"]
+        "Gunshot",
+    ],
+    /**
+     * GM2 Drum Set List
+     */
+    128: {
+        0: "Standard Set",
+        8: "Room Set",
+        16: "Power Set",
+        24: "Electronic Set",
+        25: "Analog Set",
+        32: "Jazz Set",
+        40: "Brush Set",
+        48: "Orchestra Set",
+        56: "SFX Set",
+    },
 };
 export default ProgramNames;
 //# sourceMappingURL=ProgramNames.js.map

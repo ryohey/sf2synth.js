@@ -4,10 +4,10 @@ export default function delegateProxy(targets) {
         get(target, propKey, _receiver) {
             return () => {
                 targets
-                    .map(t => t[propKey].bind(target))
-                    .forEach(f => f(...arguments));
+                    .map((t) => t[propKey].bind(target))
+                    .forEach((f) => f(...arguments));
             };
-        }
+        },
     });
 }
 //# sourceMappingURL=delegateProxy.js.map

@@ -27,7 +27,7 @@ export declare class PresetHeader {
     library: number;
     genre: number;
     morphology: number;
-    readonly isEnd: boolean;
+    get isEnd(): boolean;
     static parse(stream: Stream): PresetHeader;
 }
 export declare class PresetBag {
@@ -47,21 +47,21 @@ export declare class ModulatorList {
     value: number | RangeValue;
     amountSourceOper: number;
     transOper: number;
-    readonly type: string | undefined;
-    readonly isEnd: boolean;
+    get type(): string | undefined;
+    get isEnd(): boolean;
     static parse(stream: Stream): ModulatorList;
 }
 export declare class GeneratorList {
     code: number;
     value: number | RangeValue;
-    readonly type: string | undefined;
-    readonly isEnd: boolean;
+    get type(): string | undefined;
+    get isEnd(): boolean;
     static parse(stream: Stream): GeneratorList;
 }
 export declare class Instrument {
     instrumentName: string;
     instrumentBagIndex: number;
-    readonly isEnd: boolean;
+    get isEnd(): boolean;
     static parse(stream: Stream): Instrument;
 }
 export declare class InstrumentBag {
@@ -80,7 +80,7 @@ export declare class SampleHeader {
     pitchCorrection: number;
     sampleLink: number;
     sampleType: number;
-    readonly isEnd: boolean;
+    get isEnd(): boolean;
     static parse(stream: Stream): SampleHeader;
 }
 export declare const SampleLink: {
