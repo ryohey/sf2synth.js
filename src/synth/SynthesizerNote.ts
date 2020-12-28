@@ -94,6 +94,8 @@ export default class SynthesizerNote {
   noteOn() {
     const { noteInfo } = this
 
+    const now = this.ctx.currentTime
+
     this.updatePitchBend(this.instrument.pitchBend)
 
     //this.expressionGain.gain.value = this.expression / 127;
@@ -107,11 +109,8 @@ export default class SynthesizerNote {
     // TODO: ドラムパートのPanが変化した場合、その計算をしなければならない
     // http://cpansearch.perl.org/src/PJB/MIDI-SoundFont-1.08/doc/sfspec21.html#8.4.6
     const pan = noteInfo.pan ? noteInfo.pan / 120 : this.instrument.panpot
-    this.panner.setPosition(
-      Math.sin((pan * Math.PI) / 2),
-      0,
-      Math.cos((pan * Math.PI) / 2)
-    )
+    this.panner.positionX.setValueAtTime(Math.sin((pan * Math.PI) / 2), now)
+    this.panner.positionZ.setValueAtTime(Math.cos((pan * Math.PI) / 2), now)
 
     //---------------------------------------------------------------------------
     // Delay, Attack, Hold, Decay, Sustain
@@ -123,8 +122,6 @@ export default class SynthesizerNote {
     if (attackVolume < 0) {
       attackVolume = 0
     }
-
-    const now = this.ctx.currentTime
 
     const volDelay = now + noteInfo.volDelay
     const volAttack = volDelay + noteInfo.volAttack
