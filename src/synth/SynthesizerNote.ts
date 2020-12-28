@@ -15,38 +15,53 @@ export interface InstrumentState {
   harmonicContent: number
 }
 
-export default class SynthesizerNote {
-  //---------------------------------------------------------------------------
-  // audio node
-  //---------------------------------------------------------------------------
+const createNoteBufferNode = (ctx: AudioContext, noteInfo: NoteInfo) => {
+  const bufferSource = ctx.createBufferSource()
 
-  audioBuffer: AudioBuffer
-  bufferSource: AudioBufferSourceNode
-  panner: PannerNode
-  expressionGain: GainNode
-  gainOutput: GainNode
-  ctx: AudioContext
-  destination: AudioNode
-  filter: BiquadFilterNode
-  modulator: BiquadFilterNode
-  noteInfo: NoteInfo
-  instrument: InstrumentState
-  channel: number
-  key: number
-  velocity: number
-  playbackRate: number
-  volume: number
-  panpot: number
-  pitchBend: number
-  pitchBendSensitivity: number
-  modEnvToPitch: number
-  expression: number
+  const sample = noteInfo.sample.subarray(
+    0,
+    noteInfo.sample.length + noteInfo.end
+  )
+
+  const audioBuffer = ctx.createBuffer(1, sample.length, noteInfo.sampleRate)
+
+  const channelData = audioBuffer.getChannelData(0)
+  channelData.set(sample)
+  bufferSource.buffer = audioBuffer
+  bufferSource.loop = noteInfo.sampleModes !== 0
+  bufferSource.loopStart = noteInfo.loopStart / noteInfo.sampleRate
+  bufferSource.loopEnd = noteInfo.loopEnd / noteInfo.sampleRate
+
+  return bufferSource
+}
+
+const amountToFreq = (val: number) => Math.pow(2, (val - 6900) / 1200) * 440
+
+export default class SynthesizerNote {
+  private readonly ctx: AudioContext
+
+  private readonly bufferSource: AudioBufferSourceNode
+  private readonly modulator: BiquadFilterNode
+  private readonly panner: PannerNode
+  private readonly expressionGain: GainNode
+  private readonly gainOutput: GainNode
+  private readonly destination: AudioNode
+
+  private readonly noteInfo: NoteInfo
+  private readonly instrument: InstrumentState
+  private readonly playbackRate: number
 
   // state
-  startTime: number
-  computedPlaybackRate: number
-  noteOffState: boolean
-  sampleModes: number
+  private expression: number
+  private startTime: number
+  private computedPlaybackRate: number
+
+  get channel() {
+    return this.instrument.channel
+  }
+  get key() {
+    return this.instrument.key
+  }
 
   constructor(
     ctx: AudioContext,
@@ -59,85 +74,63 @@ export default class SynthesizerNote {
     this.noteInfo = noteInfo
     this.playbackRate = noteInfo.playbackRate(instrument.key)
     this.instrument = instrument
-    this.channel = instrument.channel
-    this.key = instrument.key
-    this.velocity = instrument.velocity
-    this.volume = instrument.volume
-    this.panpot = instrument.panpot
-    this.pitchBend = instrument.pitchBend
     this.expression = instrument.expression
-    this.pitchBendSensitivity = instrument.pitchBendSensitivity
     this.startTime = ctx.currentTime
     this.computedPlaybackRate = this.playbackRate
-  }
 
-  noteOn() {
-    const { ctx, noteInfo } = this
-
-    const sample = noteInfo.sample.subarray(
-      0,
-      noteInfo.sample.length + noteInfo.end
-    )
-    this.audioBuffer = ctx.createBuffer(1, sample.length, noteInfo.sampleRate)
-
-    const channelData = this.audioBuffer.getChannelData(0)
-    channelData.set(sample)
-
-    // buffer source
-    const bufferSource = ctx.createBufferSource()
-    bufferSource.buffer = this.audioBuffer
-    bufferSource.loop = this.sampleModes !== 0
-    bufferSource.loopStart = noteInfo.loopStart / noteInfo.sampleRate
-    bufferSource.loopEnd = noteInfo.loopEnd / noteInfo.sampleRate
-    bufferSource.onended = () => this.disconnect()
-    this.bufferSource = bufferSource
-    this.updatePitchBend(this.pitchBend)
-
-    // audio node
-    const output = (this.gainOutput = ctx.createGain())
-    const outputGain = output.gain
-
-    // expression
+    this.bufferSource = createNoteBufferNode(ctx, noteInfo)
+    this.gainOutput = ctx.createGain()
+    this.panner = ctx.createPanner()
+    this.modulator = ctx.createBiquadFilter()
     this.expressionGain = ctx.createGain()
-    //this.expressionGain.gain.value = this.expression / 127;
+
+    this.modulator.type = "lowpass"
+    this.panner.panningModel = "equalpower"
+
+    this.bufferSource.connect(this.modulator)
+    this.modulator.connect(this.panner)
+    this.panner.connect(this.expressionGain)
+    this.expressionGain.connect(this.gainOutput)
+    this.bufferSource.onended = () => this.disconnect()
+
+    this.updatePitchBend(this.instrument.pitchBend)
+
     this.expressionGain.gain.setTargetAtTime(
       this.expression / 127,
       this.ctx.currentTime,
       0.015
     )
 
-    // Modulator
-    const modulator = (this.modulator = ctx.createBiquadFilter())
+    const baseFreq = amountToFreq(noteInfo.initialFilterFc)
+    this.modulator.frequency.setTargetAtTime(
+      baseFreq,
+      this.ctx.currentTime,
+      0.015
+    )
+  }
 
-    // filter
-    const filter = ctx.createBiquadFilter()
-    filter.type = "lowpass"
-    this.filter = filter
+  noteOn() {
+    const { noteInfo } = this
+
+    const now = this.ctx.currentTime
 
     // panpot
     // TODO: ドラムパートのPanが変化した場合、その計算をしなければならない
     // http://cpansearch.perl.org/src/PJB/MIDI-SoundFont-1.08/doc/sfspec21.html#8.4.6
-    const pan = noteInfo.pan ? noteInfo.pan / 120 : this.panpot
-    const panner = (this.panner = ctx.createPanner())
-    panner.panningModel = "equalpower"
-    panner.setPosition(
-      Math.sin((pan * Math.PI) / 2),
-      0,
-      Math.cos((pan * Math.PI) / 2)
-    )
+    const pan = noteInfo.pan ? noteInfo.pan / 120 : this.instrument.panpot
+    this.panner.positionX.setValueAtTime(Math.sin((pan * Math.PI) / 2), now)
+    this.panner.positionZ.setValueAtTime(Math.cos((pan * Math.PI) / 2), now)
 
     //---------------------------------------------------------------------------
     // Delay, Attack, Hold, Decay, Sustain
     //---------------------------------------------------------------------------
     let attackVolume =
-      this.volume *
-      (this.velocity / 127) *
+      this.instrument.volume *
+      (this.instrument.velocity / 127) *
       (1 - noteInfo.initialAttenuation / 1000)
     if (attackVolume < 0) {
       attackVolume = 0
     }
-
-    const now = this.ctx.currentTime
 
     const volDelay = now + noteInfo.volDelay
     const volAttack = volDelay + noteInfo.volAttack
@@ -151,7 +144,7 @@ export default class SynthesizerNote {
     const startTime = noteInfo.start / noteInfo.sampleRate
 
     // volume envelope
-    outputGain
+    this.gainOutput.gain
       .setValueAtTime(0, now)
       .setValueAtTime(0, volDelay)
       .setTargetAtTime(attackVolume, volDelay, noteInfo.volAttack)
@@ -162,40 +155,32 @@ export default class SynthesizerNote {
       )
 
     // modulation envelope
-    const baseFreq = this.amountToFreq(noteInfo.initialFilterFc)
-    const peekFreq = this.amountToFreq(
+    const baseFreq = amountToFreq(noteInfo.initialFilterFc)
+    const peekFreq = amountToFreq(
       noteInfo.initialFilterFc + noteInfo.modEnvToFilterFc
     )
     const sustainFreq =
       baseFreq + (peekFreq - baseFreq) * (1 - noteInfo.modSustain)
 
-    modulator.Q.setValueAtTime(Math.pow(10, noteInfo.initialFilterQ / 200), now)
-    //modulator.frequency.value = baseFreq;
-    modulator.frequency.setTargetAtTime(baseFreq, this.ctx.currentTime, 0.015)
-    modulator.type = "lowpass"
-    modulator.frequency
+    this.modulator.Q.setValueAtTime(
+      Math.pow(10, noteInfo.initialFilterQ / 200),
+      now
+    )
+    this.modulator.frequency
       .setValueAtTime(baseFreq, now)
       .setValueAtTime(baseFreq, modDelay)
       .setTargetAtTime(peekFreq, modDelay, noteInfo.modAttack++) // For FireFox fix
       .setValueAtTime(peekFreq, modHold)
       .linearRampToValueAtTime(sustainFreq, modDecay)
 
-    // connect
-    bufferSource.connect(modulator)
-    modulator.connect(panner)
-    panner.connect(this.expressionGain)
-    this.expressionGain.connect(output)
-
     if (!noteInfo.mute) {
       this.gainOutput.connect(this.destination)
+    } else {
+      this.gainOutput.disconnect()
     }
 
     // fire
-    bufferSource.start(0, startTime)
-  }
-
-  amountToFreq(val: number): number {
-    return Math.pow(2, (val - 6900) / 1200) * 440
+    this.bufferSource.start(0, startTime)
   }
 
   noteOff() {
@@ -215,8 +200,8 @@ export default class SynthesizerNote {
     // modulation release time
     //---------------------------------------------------------------------------
     const modulator = this.modulator
-    const baseFreq = this.amountToFreq(noteInfo.initialFilterFc)
-    const peekFreq = this.amountToFreq(
+    const baseFreq = amountToFreq(noteInfo.initialFilterFc)
+    const peekFreq = amountToFreq(
       noteInfo.initialFilterFc + noteInfo.modEnvToFilterFc
     )
     const modEndTime =
@@ -298,7 +283,7 @@ export default class SynthesizerNote {
       this.playbackRate *
       Math.pow(
         Math.pow(2, 1 / 12),
-        this.pitchBendSensitivity *
+        this.instrument.pitchBendSensitivity *
           (pitchBend / (pitchBend < 0 ? 8192 : 8191)) *
           this.noteInfo.scaleTuning
       )
