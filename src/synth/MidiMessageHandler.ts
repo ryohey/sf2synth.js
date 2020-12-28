@@ -1,14 +1,14 @@
 export interface Listener {
-  noteOn(channel: number, key: number, velocity: number)
-  noteOff(channel: number, key: number, velocity: number)
-  setMasterVolume(volume: number)
-  programChange(channelNumber: number, instrument: number)
-  volumeChange(channelNumber: number, volume: number)
-  panpotChange(channelNumber: number, panpot: number)
-  pitchBend(channelNumber: number, pitchBend: number)
-  pitchBendSensitivity(channelNumber: number, sensitivity: number)
-  allSoundOff(channelNumber: number)
-  resetAllControl(channelNumber: number)
+  noteOn(channel: number, key: number, velocity: number): void
+  noteOff(channel: number, key: number, velocity: number): void
+  setMasterVolume(volume: number): void
+  programChange(channelNumber: number, instrument: number): void
+  volumeChange(channelNumber: number, volume: number): void
+  panpotChange(channelNumber: number, panpot: number): void
+  pitchBend(channelNumber: number, pitchBend: number): void
+  pitchBendSensitivity(channelNumber: number, sensitivity: number): void
+  allSoundOff(channelNumber: number): void
+  resetAllControl(channelNumber: number): void
 }
 
 export default class MidiMessageHandler {

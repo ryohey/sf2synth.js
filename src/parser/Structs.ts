@@ -29,23 +29,23 @@ export class Info {
 
   // LIST - INFO の全ての chunk
   static parse(data: Uint8Array, chunks: Chunk[]) {
-    function getChunk(type) {
+    function getChunk(type: string) {
       return chunks.find((c) => c.type === type)
     }
 
-    function toStream(chunk) {
+    function toStream(chunk: Chunk) {
       return new Stream(data, chunk.offset)
     }
 
-    function readString(type) {
+    function readString(type: string) {
       const chunk = getChunk(type)
       if (!chunk) {
         return null
       }
-      return toStream(chunk)!.readString(chunk.size)
+      return toStream(chunk).readString(chunk.size)
     }
 
-    function readVersionTag(type) {
+    function readVersionTag(type: string) {
       const chunk = getChunk(type)
       if (!chunk) {
         return null

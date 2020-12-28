@@ -2,7 +2,7 @@ export default class Stream {
   private data: Uint8Array
   ip: number
 
-  constructor(data, offset) {
+  constructor(data: Uint8Array, offset: number) {
     this.data = data
     this.ip = offset
   }

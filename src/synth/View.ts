@@ -19,7 +19,7 @@ function renderKeys(): string {
 }
 
 function renderProgramOptions(
-  programNames: { [index: number]: string[] },
+  programNames: { [index: number]: { [index: number]: string } },
   bank: number
 ): string {
   let html = ""
@@ -31,7 +31,7 @@ function renderProgramOptions(
   return `<select>${html}</select>`
 }
 
-function renderInstrument(program): Element {
+function renderInstrument(program: string): Element {
   return render(`
     <div class="instrument">
       <div class="program">${program}</div>
@@ -48,11 +48,13 @@ function mergeProgramNames(
   left: { [index: number]: { [index: number]: string } },
   right: { [index: number]: { [index: number]: string } }
 ) {
-  function mergedKeys(a, b) {
-    return new Set([...Object.keys(a), ...Object.keys(b)])
+  function mergedKeys(a: {}, b: {}) {
+    return Array.from(new Set([...Object.keys(a), ...Object.keys(b)])).map(
+      Number
+    )
   }
   const banks = mergedKeys(left, right)
-  const result = {}
+  const result: { [index: number]: { [index: number]: string } } = {}
   banks.forEach((bank) => {
     const l = left[bank] || []
     const r = right[bank] || []
@@ -108,7 +110,7 @@ export default class View implements Listener {
           this.noteOn(channel, key, 127)
           synth.noteOn(channel, key, 127)
 
-          const onMouseUp = (event) => {
+          const onMouseUp = (event: MouseEvent) => {
             document.removeEventListener("mouseup", onMouseUp)
             event.preventDefault()
             this.drag = false

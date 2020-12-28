@@ -16,15 +16,14 @@ class Channel {
 }
 
 export default class Synthesizer implements Listener {
-  bank: number = 0
-  bufferSize: number = 1024
-  ctx: AudioContext
-  gainMaster: GainNode
+  private bank: number = 0
+  private ctx: AudioContext
+  private gainMaster: GainNode
   channels: Channel[] = []
   masterVolume: number = 1.0
   soundFont: SoundFont
 
-  constructor(ctx) {
+  constructor(ctx: AudioContext) {
     this.ctx = ctx
     this.gainMaster = this.ctx.createGain()
     this.setMasterVolume(this.masterVolume)

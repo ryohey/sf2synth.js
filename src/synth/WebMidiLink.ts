@@ -4,7 +4,7 @@ import MidiMessageHandler, { Listener } from "./MidiMessageHandler"
 import delegateProxy from "./delegateProxy"
 
 export default class WebMidiLink {
-  loadCallback: (ArrayBuffer) => void
+  loadCallback: (buf: ArrayBuffer) => void
   midiMessageHandler: MidiMessageHandler
   ready: boolean = false
   synth: Synthesizer
@@ -22,7 +22,7 @@ export default class WebMidiLink {
     )
   }
 
-  setup(url) {
+  setup(url: string) {
     if (!this.ready) {
       window.addEventListener(
         "DOMContentLoaded",
@@ -37,7 +37,7 @@ export default class WebMidiLink {
     }
   }
 
-  load(url) {
+  load(url: string) {
     const xhr = new XMLHttpRequest()
 
     xhr.open("GET", url, true)
@@ -45,14 +45,14 @@ export default class WebMidiLink {
 
     xhr.addEventListener(
       "load",
-      function (ev) {
+      (ev) => {
         const xhr = ev.target as XMLHttpRequest
 
         this.onload(xhr.response)
         if (typeof this.loadCallback === "function") {
           this.loadCallback(xhr.response)
         }
-      }.bind(this),
+      },
       false
     )
 
@@ -128,7 +128,7 @@ export default class WebMidiLink {
     }
   }
 
-  setLoadCallback(callback: (ArrayBuffer) => void) {
+  setLoadCallback(callback: (buf: ArrayBuffer) => void) {
     this.loadCallback = callback
   }
 }
