@@ -5,12 +5,13 @@ sf2synth.js は [WebMidiLink](http://www.g200kg.com/en/docs/webmidilink/) 対応
 ## 使い方
 
 ```js
-var url = '//cdn.rawgit.com/logue/smfplayer.js/gh-pages/Yamaha%20XG%20Sound%20Set.sf2';
-var wml = new SoundFont.WebMidiLink();
-wml.setLoadCallback(function(arraybuffer) {
-    // ロード完了時の処理
-});
-wml.setup(url);
+var url =
+  "//cdn.rawgit.com/logue/smfplayer.js/gh-pages/Yamaha%20XG%20Sound%20Set.sf2"
+var wml = new SoundFont.WebMidiLink()
+wml.setLoadCallback(function (arraybuffer) {
+  // ロード完了時の処理
+})
+wml.setup(url)
 ```
 
 ## テスト方法
@@ -20,7 +21,7 @@ npm install
 npm start
 ```
 
-ブラウザで<http://localhost:10001/>を開く。
+ブラウザで<http://localhost:8080/>を開く。
 
 ## 対応ブラウザ
 
