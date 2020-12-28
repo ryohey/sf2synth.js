@@ -35,6 +35,8 @@ const createNoteBufferNode = (ctx: AudioContext, noteInfo: NoteInfo) => {
   return bufferSource
 }
 
+const amountToFreq = (val: number) => Math.pow(2, (val - 6900) / 1200) * 440
+
 export default class SynthesizerNote {
   private readonly ctx: AudioContext
 
@@ -89,6 +91,7 @@ export default class SynthesizerNote {
     this.modulator.connect(this.panner)
     this.panner.connect(this.expressionGain)
     this.expressionGain.connect(this.gainOutput)
+    this.bufferSource.onended = () => this.disconnect()
   }
 
   noteOn() {
@@ -146,8 +149,8 @@ export default class SynthesizerNote {
       )
 
     // modulation envelope
-    const baseFreq = this.amountToFreq(noteInfo.initialFilterFc)
-    const peekFreq = this.amountToFreq(
+    const baseFreq = amountToFreq(noteInfo.initialFilterFc)
+    const peekFreq = amountToFreq(
       noteInfo.initialFilterFc + noteInfo.modEnvToFilterFc
     )
     const sustainFreq =
@@ -180,10 +183,6 @@ export default class SynthesizerNote {
     this.bufferSource.start(0, startTime)
   }
 
-  amountToFreq(val: number): number {
-    return Math.pow(2, (val - 6900) / 1200) * 440
-  }
-
   noteOff() {
     const { noteInfo, bufferSource } = this
     const output = this.gainOutput
@@ -201,8 +200,8 @@ export default class SynthesizerNote {
     // modulation release time
     //---------------------------------------------------------------------------
     const modulator = this.modulator
-    const baseFreq = this.amountToFreq(noteInfo.initialFilterFc)
-    const peekFreq = this.amountToFreq(
+    const baseFreq = amountToFreq(noteInfo.initialFilterFc)
+    const peekFreq = amountToFreq(
       noteInfo.initialFilterFc + noteInfo.modEnvToFilterFc
     )
     const modEndTime =
