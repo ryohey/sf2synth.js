@@ -7,9 +7,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
     "strictNullChecks": true,
     "outDir": "bin",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "esModuleInterop": true
   },
   "include": ["src/**/*"],
   "exclude": ["bin", "public", "node_modules", "**/*.test.ts", "**/*.spec.ts"]

@@ -19,7 +19,7 @@ function renderKeys(): string {
 }
 
 function renderProgramOptions(
-  programNames: { [index: number]: string[] },
+  programNames: { [index: number]: { [index: number]: string } },
   bank: number
 ): string {
   let html = ""
@@ -32,7 +32,7 @@ function renderProgramOptions(
   return `<select>${html}</select>`
 }
 
-function renderInstrument(program): Element {
+function renderInstrument(program: string): Element {
   return render(`
     <div class="instrument">
       <div class="program">${program}</div>
@@ -45,28 +45,21 @@ function renderInstrument(program): Element {
   `)
 }
 
-function programNamesFromBankSet(bankSet) {
-  //return objectMap(bankSet, bank => objectMap(bank, s => s.name))
-  let result = {}
-  Object.keys(bankSet).forEach((no) => {
-    result[no] = bankSet[no]
-  })
-  return result
-}
-
 function mergeProgramNames(
-  left: { [index: number]: (string | null)[] },
-  right: { [index: number]: (string | null)[] }
+  left: { [index: number]: { [index: number]: string } },
+  right: { [index: number]: { [index: number]: string } }
 ) {
-  function mergedKeys(a, b) {
-    return new Set([...Object.keys(a), ...Object.keys(b)])
+  function mergedKeys(a: {}, b: {}) {
+    return Array.from(new Set([...Object.keys(a), ...Object.keys(b)])).map(
+      Number
+    )
   }
   const banks = mergedKeys(left, right)
-  const result = {}
+  const result: { [index: number]: { [index: number]: string } } = {}
   banks.forEach((bank) => {
     const l = left[bank] || []
     const r = right[bank] || []
-    const list: { [index: number]: string | null } = {}
+    const list: { [index: number]: string } = {}
     const programs = mergedKeys(l, r)
     programs.forEach((p) => {
       list[p] = `${l[p] || "None"} (${r[p] || "None"})`
@@ -85,7 +78,7 @@ export default class View implements Listener {
   draw(synth: Synthesizer): Element {
     const element = (this.element = render(`<div />`))
     const programNames = mergeProgramNames(
-      programNamesFromBankSet(synth.soundFont.getPresetNames()),
+      synth.soundFont.getPresetNames(),
       ProgramNames
     )
 
@@ -120,7 +113,7 @@ export default class View implements Listener {
           this.noteOn(channel, key, 127)
           synth.noteOn(channel, key, 127)
 
-          const onMouseUp = (event) => {
+          const onMouseUp = (event: MouseEvent) => {
             document.removeEventListener("mouseup", onMouseUp)
             event.preventDefault()
             this.drag = false

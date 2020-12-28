@@ -1,4 +1,3 @@
-//import { Instrument } from "./Structs";
 import { NoteInfo } from "../parser/SoundFont"
 
 export interface InstrumentState {

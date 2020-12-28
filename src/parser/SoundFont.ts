@@ -67,9 +67,9 @@ export default class SoundFont {
   }
 
   getInstrumentKey(
-    bankNumber,
-    instrumentNumber,
-    key,
+    bankNumber: number,
+    instrumentNumber: number,
+    key: number,
     velocity = 100
   ): NoteInfo | null {
     const presetHeaderIndex = this.parsed.presetHeaders.findIndex(
@@ -161,7 +161,7 @@ export default class SoundFont {
       sampleRate: sampleHeader.sampleRate,
       sampleName: sampleHeader.sampleName,
       sampleModes: gen.sampleModes,
-      playbackRate: (key) =>
+      playbackRate: (key: number) =>
         Math.pow(Math.pow(2, 1 / 12), (key + basePitch) * scaleTuning),
       modEnvToPitch: gen.modEnvToPitch / 100, // cent
       scaleTuning,
@@ -216,21 +216,21 @@ export default class SoundFont {
 }
 
 // value = 1200log2(sec) で表される時間を秒単位に変換する
-export function convertTime(value) {
+export function convertTime(value: number) {
   return Math.pow(2, value / 1200)
 }
 
-function removeUndefined(obj) {
-  const result = {}
-  Object.keys(obj).forEach((key) => {
+function removeUndefined<T>(obj: T) {
+  const result: Partial<T> = {}
+  for (let key in obj) {
     if (obj[key] !== undefined) {
       result[key] = obj[key]
     }
-  })
+  }
   return result
 }
 
-function arrayRange(start, end) {
+function arrayRange(start: number, end: number) {
   return Array.from({ length: end - start }, (_, k) => k + start)
 }
 

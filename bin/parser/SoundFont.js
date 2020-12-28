@@ -28,17 +28,21 @@ export default class SoundFont {
         const instrumentBag = this.parsed.instrumentZone[instrumentZoneIndex];
         const nextInstrumentBag = this.parsed.instrumentZone[instrumentZoneIndex + 1];
         const generatorIndex = instrumentBag.instrumentGeneratorIndex;
-        const nextGeneratorIndex = nextInstrumentBag ? nextInstrumentBag.instrumentGeneratorIndex : this.parsed.instrumentGenerators.length;
+        const nextGeneratorIndex = nextInstrumentBag
+            ? nextInstrumentBag.instrumentGeneratorIndex
+            : this.parsed.instrumentGenerators.length;
         const generators = this.parsed.instrumentGenerators.slice(generatorIndex, nextGeneratorIndex);
         return createInstrumentZone(generators);
     }
     getInstrumentZoneIndexes(instrumentID) {
         const instrument = this.parsed.instruments[instrumentID];
         const nextInstrument = this.parsed.instruments[instrumentID + 1];
-        return arrayRange(instrument.instrumentBagIndex, nextInstrument ? nextInstrument.instrumentBagIndex : this.parsed.instrumentZone.length);
+        return arrayRange(instrument.instrumentBagIndex, nextInstrument
+            ? nextInstrument.instrumentBagIndex
+            : this.parsed.instrumentZone.length);
     }
     getInstrumentKey(bankNumber, instrumentNumber, key, velocity = 100) {
-        const presetHeaderIndex = this.parsed.presetHeaders.findIndex(p => p.preset === instrumentNumber && p.bank === bankNumber);
+        const presetHeaderIndex = this.parsed.presetHeaders.findIndex((p) => p.preset === instrumentNumber && p.bank === bankNumber);
         if (presetHeaderIndex < 0) {
             console.warn("preset not found: bank=%s instrument=%s", bankNumber, instrumentNumber);
             return null;
@@ -46,11 +50,12 @@ export default class SoundFont {
         const presetGenerators = this.getPresetZone(presetHeaderIndex);
         // Last Preset Generator must be instrument
         const lastPresetGenertor = presetGenerators[presetGenerators.length - 1];
-        if (lastPresetGenertor.type !== "instrument" || isNaN(Number(lastPresetGenertor.value))) {
+        if (lastPresetGenertor.type !== "instrument" ||
+            isNaN(Number(lastPresetGenertor.value))) {
             throw new Error("Invalid SoundFont: invalid preset generator: expect instrument");
         }
         const instrumentID = lastPresetGenertor.value;
-        const instrumentZones = this.getInstrumentZoneIndexes(instrumentID).map(i => this.getInstrumentZone(i));
+        const instrumentZones = this.getInstrumentZoneIndexes(instrumentID).map((i) => this.getInstrumentZone(i));
         // 最初のゾーンがsampleID を持たなければ global instrument zone
         let globalInstrumentZone;
         const firstInstrumentZone = instrumentZones[0];
@@ -58,7 +63,7 @@ export default class SoundFont {
             globalInstrumentZone = instrumentZones[0];
         }
         // keyRange と velRange がマッチしている Generator を探す
-        const instrumentZone = instrumentZones.find(i => {
+        const instrumentZone = instrumentZones.find((i) => {
             if (i === globalInstrumentZone) {
                 return false; // global zone を除外
             }
@@ -83,7 +88,9 @@ export default class SoundFont {
         const sample = this.parsed.samples[gen.sampleID];
         const sampleHeader = this.parsed.sampleHeaders[gen.sampleID];
         const tune = gen.coarseTune + gen.fineTune / 100;
-        const basePitch = tune + (sampleHeader.pitchCorrection / 100) - (gen.overridingRootKey || sampleHeader.originalPitch);
+        const basePitch = tune +
+            sampleHeader.pitchCorrection / 100 -
+            (gen.overridingRootKey || sampleHeader.originalPitch);
         const scaleTuning = gen.scaleTuning / 100;
         return {
             sample,
@@ -95,12 +102,12 @@ export default class SoundFont {
             scaleTuning,
             start: gen.startAddrsCoarseOffset * 32768 + gen.startAddrsOffset,
             end: gen.endAddrsCoarseOffset * 32768 + gen.endAddrsOffset,
-            loopStart: (sampleHeader.loopStart +
+            loopStart: sampleHeader.loopStart +
                 gen.startloopAddrsCoarseOffset * 32768 +
-                gen.startloopAddrsOffset),
-            loopEnd: (sampleHeader.loopEnd +
+                gen.startloopAddrsOffset,
+            loopEnd: sampleHeader.loopEnd +
                 gen.endloopAddrsCoarseOffset * 32768 +
-                gen.endloopAddrsOffset),
+                gen.endloopAddrsOffset,
             volDelay: convertTime(gen.volDelay),
             volAttack: convertTime(gen.volAttack),
             volHold: convertTime(gen.volHold),
@@ -119,16 +126,18 @@ export default class SoundFont {
             modEnvToFilterFc: gen.modEnvToFilterFc,
             initialFilterQ: gen.initialFilterQ,
             initialAttenuation: gen.initialAttenuation,
-            freqVibLFO: gen.freqVibLFO ? convertTime(gen.freqVibLFO) * 8.176 : undefined,
+            freqVibLFO: gen.freqVibLFO
+                ? convertTime(gen.freqVibLFO) * 8.176
+                : undefined,
             pan: gen.pan,
             mute: false,
-            releaseTime: gen.releaseTime
+            releaseTime: gen.releaseTime,
         };
     }
     // presetNames[bankNumber][presetNumber] = presetName
     getPresetNames() {
         const bank = {};
-        this.parsed.presetHeaders.forEach(preset => {
+        this.parsed.presetHeaders.forEach((preset) => {
             if (!bank[preset.bank]) {
                 bank[preset.bank] = {};
             }
@@ -143,11 +152,11 @@ export function convertTime(value) {
 }
 function removeUndefined(obj) {
     const result = {};
-    Object.keys(obj).forEach(key => {
+    for (let key in obj) {
         if (obj[key] !== undefined) {
             result[key] = obj[key];
         }
-    });
+    }
     return result;
 }
 function arrayRange(start, end) {
@@ -156,7 +165,7 @@ function arrayRange(start, end) {
 // ひとつの instrument に対応する Generator の配列から使いやすくしたオブジェクトを返す
 function createInstrumentZone(instrumentGenerators) {
     function getValue(type) {
-        const generator = instrumentGenerators.find(g => g.type === type);
+        const generator = instrumentGenerators.find((g) => g.type === type);
         if (!generator) {
             return undefined;
         }
@@ -168,7 +177,8 @@ function createInstrumentZone(instrumentGenerators) {
     // First Instrument Generator must be keyRange
     const firstInstrumentGenerator = instrumentGenerators[0];
     let keyRange;
-    if (firstInstrumentGenerator && firstInstrumentGenerator.type === "keyRange") {
+    if (firstInstrumentGenerator &&
+        firstInstrumentGenerator.type === "keyRange") {
         if (!(firstInstrumentGenerator.value instanceof RangeValue)) {
             throw new Error("Invalid SoundFont: keyRange is not ranged value");
         }
@@ -177,7 +187,8 @@ function createInstrumentZone(instrumentGenerators) {
     // Second Instrument Generator could be velRange
     const secondInstrumentGenerator = instrumentGenerators[1];
     let velRange;
-    if (secondInstrumentGenerator && secondInstrumentGenerator.type === "velRange") {
+    if (secondInstrumentGenerator &&
+        secondInstrumentGenerator.type === "velRange") {
         if (!(secondInstrumentGenerator.value instanceof RangeValue)) {
             throw new Error("Invalid SoundFont: velRange is not ranged value");
         }
@@ -225,7 +236,7 @@ function createInstrumentZone(instrumentGenerators) {
         initialFilterQ: getValue("initialFilterQ"),
         initialFilterFc: getValue("initialFilterFc"),
         sampleModes: getValue("sampleModes"),
-        pan: getValue("pan")
+        pan: getValue("pan"),
     };
 }
 const defaultInstrumentZone = {
@@ -265,6 +276,6 @@ const defaultInstrumentZone = {
     sampleModes: 0,
     mute: false,
     releaseTime: 64,
-    pan: undefined
+    pan: undefined,
 };
 //# sourceMappingURL=SoundFont.js.map

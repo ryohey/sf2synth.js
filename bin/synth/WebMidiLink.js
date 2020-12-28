@@ -19,16 +19,15 @@ export default class WebMidiLink {
         else {
             this.wml = null;
         }
-        window.addEventListener('DOMContentLoaded', function () {
-            this.ready = true;
-        }.bind(this), false);
+        window.addEventListener("DOMContentLoaded", () => (this.ready = true), false);
     }
     setup(url) {
         if (!this.ready) {
-            window.addEventListener('DOMContentLoaded', function onload() {
-                window.removeEventListener('DOMContentLoaded', onload, false);
+            const onload = () => {
+                window.removeEventListener("DOMContentLoaded", onload, false);
                 this.load(url);
-            }.bind(this), false);
+            };
+            window.addEventListener("DOMContentLoaded", onload, false);
         }
         else {
             this.load(url);
@@ -36,27 +35,27 @@ export default class WebMidiLink {
     }
     load(url) {
         const xhr = new XMLHttpRequest();
-        const progress = this.target.appendChild(document.createElement('progress'));
-        const percentage = progress.parentNode.insertBefore(document.createElement('outpout'), progress.nextElementSibling);
-        xhr.open('GET', url, true);
-        xhr.responseType = 'arraybuffer';
-        xhr.addEventListener('load', function (ev) {
+        const progress = this.target.appendChild(document.createElement("progress"));
+        const percentage = progress.parentNode.insertBefore(document.createElement("outpout"), progress.nextElementSibling);
+        xhr.open("GET", url, true);
+        xhr.responseType = "arraybuffer";
+        xhr.addEventListener("load", (ev) => {
             const xhr = ev.target;
             this.onload(xhr.response);
             this.target.removeChild(progress);
             this.target.removeChild(percentage);
-            if (typeof this.loadCallback === 'function') {
+            if (typeof this.loadCallback === "function") {
                 this.loadCallback(xhr.response);
             }
-        }.bind(this), false);
-        xhr.addEventListener('progress', function (e) {
+        }, false);
+        xhr.addEventListener("progress", (e) => {
             progress.max = e.total;
             progress.value = e.loaded;
-            percentage.innerText = (e.loaded / e.total) / 100 + ' %';
+            percentage.innerText = e.loaded / e.total / 100 + " %";
             // NOTE: This message is not compliant of WebMidiLink.
             if (this.wml)
-                this.wml.postMessage('link,progress,' + e.loaded + ',' + e.total, '*');
-        }.bind(this), false);
+                this.wml.postMessage("link,progress," + e.loaded + "," + e.total, "*");
+        }, false);
         xhr.send();
     }
     onload(response) {
@@ -70,10 +69,10 @@ export default class WebMidiLink {
             synth = this.synth = new Synthesizer(ctx);
             synth.connect(ctx.destination);
             synth.loadSoundFont(input);
-            const view = this.view = new View();
+            const view = (this.view = new View());
             this.target.appendChild(view.draw(synth));
             this.midiMessageHandler.listener = delegateProxy([synth, view]);
-            window.addEventListener('message', this.onmessage.bind(this), false);
+            window.addEventListener("message", this.onmessage.bind(this), false);
         }
         else {
             synth = this.synth;
@@ -81,35 +80,36 @@ export default class WebMidiLink {
         }
         // link ready
         if (this.wml)
-            this.wml.postMessage("link,ready", '*');
+            this.wml.postMessage("link,ready", "*");
     }
     onmessage(ev) {
-        const msg = ev.data.split(',');
+        if (typeof ev.data !== "string") {
+            return;
+        }
+        const msg = ev.data.split(",");
         const type = msg.shift();
         switch (type) {
-            case 'midi':
-                this.midiMessageHandler.processMidiMessage(msg.map(function (hex) {
-                    return parseInt(hex, 16);
-                }));
+            case "midi":
+                this.midiMessageHandler.processMidiMessage(msg.map((hex) => parseInt(hex, 16)));
                 break;
-            case 'link':
+            case "link":
                 const command = msg.shift();
                 switch (command) {
-                    case 'reqpatch':
+                    case "reqpatch":
                         // TODO: dummy data
                         if (this.wml)
-                            this.wml.postMessage("link,patch", '*');
+                            this.wml.postMessage("link,patch", "*");
                         break;
-                    case 'setpatch':
+                    case "setpatch":
                         // TODO: NOP
                         break;
                     default:
-                        console.error('unknown link message:', command);
+                        console.error("unknown link message:", command);
                         break;
                 }
                 break;
             default:
-                console.error('unknown message type');
+                console.error("unknown message type");
         }
     }
     setLoadCallback(callback) {

@@ -1,7 +1,7 @@
 export default class Stream {
     private data;
     ip: number;
-    constructor(data: any, offset: any);
+    constructor(data: Uint8Array, offset: number);
     readString(size: number): string;
     readWORD(): number;
     readDWORD(bigEndian?: boolean): number;

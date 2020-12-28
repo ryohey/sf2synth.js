@@ -12,7 +12,7 @@ export class Info {
     // LIST - INFO の全ての chunk
     static parse(data, chunks) {
         function getChunk(type) {
-            return chunks.find(c => c.type === type);
+            return chunks.find((c) => c.type === type);
         }
         function toStream(chunk) {
             return new Stream(data, chunk.offset);
@@ -84,21 +84,21 @@ export class ModulatorList {
         return GeneratorEnumeratorTable[this.destinationOper];
     }
     get isEnd() {
-        return this.sourceOper === 0 &&
+        return (this.sourceOper === 0 &&
             this.destinationOper === 0 &&
             this.value === 0 &&
             this.amountSourceOper === 0 &&
-            this.transOper === 0;
+            this.transOper === 0);
     }
     static parse(stream) {
         const t = new ModulatorList();
         t.sourceOper = stream.readWORD();
         t.destinationOper = stream.readWORD();
         switch (t.type) {
-            case 'keyRange': /* FALLTHROUGH */
-            case 'velRange': /* FALLTHROUGH */
-            case 'keynum': /* FALLTHROUGH */
-            case 'velocity':
+            case "keyRange": /* FALLTHROUGH */
+            case "velRange": /* FALLTHROUGH */
+            case "keynum": /* FALLTHROUGH */
+            case "velocity":
                 t.value = RangeValue.parse(stream);
                 break;
             default:
@@ -115,17 +115,16 @@ export class GeneratorList {
         return GeneratorEnumeratorTable[this.code];
     }
     get isEnd() {
-        return this.code === 0 &&
-            this.value === 0;
+        return this.code === 0 && this.value === 0;
     }
     static parse(stream) {
         const t = new GeneratorList();
         t.code = stream.readWORD();
         switch (t.type) {
-            case 'keynum': /* FALLTHROUGH */
-            case 'keyRange': /* FALLTHROUGH */
-            case 'velRange': /* FALLTHROUGH */
-            case 'velocity':
+            case "keynum": /* FALLTHROUGH */
+            case "keyRange": /* FALLTHROUGH */
+            case "velRange": /* FALLTHROUGH */
+            case "velocity":
                 t.value = RangeValue.parse(stream);
                 break;
             default:
@@ -183,6 +182,6 @@ export const SampleLink = {
     RomMonoSample: 0x8001,
     RomRightSample: 0x8002,
     RomLeftSample: 0x8004,
-    RomLinkedSample: 0x8008
+    RomLinkedSample: 0x8008,
 };
 //# sourceMappingURL=Structs.js.map

@@ -44,14 +44,14 @@ export default class SoundFont {
         pan: number | undefined;
     };
     getInstrumentZoneIndexes(instrumentID: number): number[];
-    getInstrumentKey(bankNumber: any, instrumentNumber: any, key: any, velocity?: number): NoteInfo | null;
+    getInstrumentKey(bankNumber: number, instrumentNumber: number, key: number, velocity?: number): NoteInfo | null;
     getPresetNames(): {
         [index: number]: {
             [index: number]: string;
         };
     };
 }
-export declare function convertTime(value: any): number;
+export declare function convertTime(value: number): number;
 export interface NoteInfo {
     sample: Int16Array;
     sampleRate: number;

@@ -4,7 +4,7 @@ export default class Stream {
         this.ip = offset;
     }
     readString(size) {
-        const str = String.fromCharCode.apply(null, this.data.subarray(this.ip, this.ip += size));
+        const str = String.fromCharCode.apply(null, this.data.subarray(this.ip, (this.ip += size)));
         const nullLocation = str.indexOf("\u0000");
         if (nullLocation > 0) {
             return str.substr(0, nullLocation);
@@ -16,16 +16,18 @@ export default class Stream {
     }
     readDWORD(bigEndian = false) {
         if (bigEndian) {
-            return ((this.data[this.ip++] << 24) |
+            return (((this.data[this.ip++] << 24) |
                 (this.data[this.ip++] << 16) |
                 (this.data[this.ip++] << 8) |
-                (this.data[this.ip++])) >>> 0;
+                this.data[this.ip++]) >>>
+                0);
         }
         else {
-            return (this.data[this.ip++] |
+            return ((this.data[this.ip++] |
                 (this.data[this.ip++] << 8) |
                 (this.data[this.ip++] << 16) |
-                (this.data[this.ip++] << 24)) >>> 0;
+                (this.data[this.ip++] << 24)) >>>
+                0);
         }
     }
     readByte() {

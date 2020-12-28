@@ -4,7 +4,7 @@ import MidiMessageHandler, { Listener } from "./MidiMessageHandler"
 import delegateProxy from "./delegateProxy"
 
 export default class WebMidiLink {
-  loadCallback: (ArrayBuffer) => void
+  loadCallback: (buf: ArrayBuffer) => void
   midiMessageHandler: MidiMessageHandler
   ready: boolean = false
   synth: Synthesizer
@@ -28,29 +28,24 @@ export default class WebMidiLink {
 
     window.addEventListener(
       "DOMContentLoaded",
-      function () {
-        this.ready = true
-      }.bind(this),
+      () => (this.ready = true),
       false
     )
   }
 
-  setup(url) {
+  setup(url: string) {
     if (!this.ready) {
-      window.addEventListener(
-        "DOMContentLoaded",
-        function onload() {
-          window.removeEventListener("DOMContentLoaded", onload, false)
-          this.load(url)
-        }.bind(this),
-        false
-      )
+      const onload = () => {
+        window.removeEventListener("DOMContentLoaded", onload, false)
+        this.load(url)
+      }
+      window.addEventListener("DOMContentLoaded", onload, false)
     } else {
       this.load(url)
     }
   }
 
-  load(url) {
+  load(url: string) {
     const xhr = new XMLHttpRequest()
     const progress = this.target!.appendChild(
       document.createElement("progress")
@@ -65,7 +60,7 @@ export default class WebMidiLink {
 
     xhr.addEventListener(
       "load",
-      function (ev) {
+      (ev) => {
         const xhr = ev.target as XMLHttpRequest
 
         this.onload(xhr.response)
@@ -74,20 +69,20 @@ export default class WebMidiLink {
         if (typeof this.loadCallback === "function") {
           this.loadCallback(xhr.response)
         }
-      }.bind(this),
+      },
       false
     )
 
     xhr.addEventListener(
       "progress",
-      function (e) {
+      (e) => {
         progress.max = e.total
         progress.value = e.loaded
         percentage.innerText = e.loaded / e.total / 100 + " %"
         // NOTE: This message is not compliant of WebMidiLink.
         if (this.wml)
           this.wml.postMessage("link,progress," + e.loaded + "," + e.total, "*")
-      }.bind(this),
+      },
       false
     )
     xhr.send()
@@ -120,15 +115,16 @@ export default class WebMidiLink {
   }
 
   onmessage(ev: MessageEvent) {
+    if (typeof ev.data !== "string") {
+      return
+    }
     const msg = ev.data.split(",")
     const type = msg.shift()
 
     switch (type) {
       case "midi":
         this.midiMessageHandler.processMidiMessage(
-          msg.map(function (hex) {
-            return parseInt(hex, 16)
-          })
+          msg.map((hex) => parseInt(hex, 16))
         )
         break
       case "link":
@@ -151,7 +147,7 @@ export default class WebMidiLink {
     }
   }
 
-  setLoadCallback(callback: (ArrayBuffer) => void) {
+  setLoadCallback(callback: (buf: ArrayBuffer) => void) {
     this.loadCallback = callback
   }
 }

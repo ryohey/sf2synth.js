@@ -1,4 +1,6 @@
 declare const ProgramNames: {
-    [index: number]: (string | null)[];
+    [index: number]: {
+        [index: number]: string;
+    };
 };
 export default ProgramNames;

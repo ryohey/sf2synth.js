@@ -20,15 +20,14 @@ declare class Channel {
     mute: boolean;
 }
 export default class Synthesizer implements Listener {
-    bufferSize: number;
-    ctx: AudioContext;
-    gainMaster: GainNode;
+    private ctx;
+    private gainMaster;
     channels: Channel[];
     masterVolume: number;
     soundFont: SoundFont;
     isXG: boolean;
     isGS: boolean;
-    constructor(ctx: any);
+    constructor(ctx: AudioContext);
     init(): void;
     loadSoundFont(input: Uint8Array): void;
     connect(destination: AudioNode): void;

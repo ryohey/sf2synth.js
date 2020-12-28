@@ -94,7 +94,12 @@ export default function parse(
   }
 }
 
-function getChunkList(chunk, data, expectedType, expectedSignature) {
+function getChunkList(
+  chunk: Chunk,
+  data: Uint8Array,
+  expectedType: string,
+  expectedSignature: string
+) {
   // check parse target
   if (chunk.type !== expectedType) {
     throw new Error("invalid chunk type:" + chunk.type)
@@ -154,25 +159,26 @@ function parseChunk<T>(
   return result
 }
 
-const parsePhdr = (chunk, data) =>
+const parsePhdr = (chunk: Chunk, data: Uint8Array) =>
   parseChunk(chunk, data, "phdr", PresetHeader, (p) => p.isEnd)
-const parsePbag = (chunk, data) => parseChunk(chunk, data, "pbag", PresetBag)
-const parseInst = (chunk, data) =>
+const parsePbag = (chunk: Chunk, data: Uint8Array) =>
+  parseChunk(chunk, data, "pbag", PresetBag)
+const parseInst = (chunk: Chunk, data: Uint8Array) =>
   parseChunk(chunk, data, "inst", Instrument, (i) => i.isEnd)
-const parseIbag = (chunk, data) =>
+const parseIbag = (chunk: Chunk, data: Uint8Array) =>
   parseChunk(chunk, data, "ibag", InstrumentBag)
-const parsePmod = (chunk, data) =>
+const parsePmod = (chunk: Chunk, data: Uint8Array) =>
   parseChunk(chunk, data, "pmod", ModulatorList, (m) => m.isEnd)
-const parseImod = (chunk, data) =>
+const parseImod = (chunk: Chunk, data: Uint8Array) =>
   parseChunk(chunk, data, "imod", ModulatorList, (m) => m.isEnd)
-const parsePgen = (chunk, data) =>
+const parsePgen = (chunk: Chunk, data: Uint8Array) =>
   parseChunk(chunk, data, "pgen", GeneratorList, (g) => g.isEnd)
-const parseIgen = (chunk, data) =>
+const parseIgen = (chunk: Chunk, data: Uint8Array) =>
   parseChunk(chunk, data, "igen", GeneratorList)
-const parseShdr = (chunk, data) =>
+const parseShdr = (chunk: Chunk, data: Uint8Array) =>
   parseChunk(chunk, data, "shdr", SampleHeader, (s) => s.isEnd)
 
-function adjustSampleData(sample, sampleRate) {
+function adjustSampleData(sample: Int16Array, sampleRate: number) {
   let multiply = 1
 
   // buffer

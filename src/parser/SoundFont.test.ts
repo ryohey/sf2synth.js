@@ -1,4 +1,4 @@
-const fs = require("fs")
+import fs from "fs"
 import parse from "./Parser"
 import SoundFont, { convertTime } from "./SoundFont"
 
@@ -18,8 +18,8 @@ describe("SoundFont", () => {
     {
       const zone = soundFont.getInstrumentZone(ids[0]) // 最初に Global Zone が入っている
       expect(zone.sampleID).toBeUndefined() // Global Zone は sample ID を持たない
-      expect(convertTime(zone.volAttack)).toBeCloseTo(0.123)
-      expect(convertTime(zone.volDecay)).toBeCloseTo(0.234)
+      expect(convertTime(zone.volAttack ?? 0)).toBeCloseTo(0.123)
+      expect(convertTime(zone.volDecay ?? 0)).toBeCloseTo(0.234)
     }
     {
       const zone = soundFont.getInstrumentZone(ids[1])

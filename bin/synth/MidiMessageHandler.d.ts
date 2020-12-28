@@ -1,20 +1,20 @@
 export interface Listener {
-    init(): any;
-    noteOn(channel: number, key: number, velocity: number): any;
-    noteOff(channel: number, key: number, velocity: number): any;
-    setMasterVolume(volume: number): any;
-    programChange(channelNumber: number, instrument: number): any;
-    volumeChange(channelNumber: number, volume: number): any;
-    panpotChange(channelNumber: number, panpot: number): any;
-    pitchBend(channelNumber: number, pitchBend: number): any;
-    pitchBendSensitivity(channelNumber: number, sensitivity: number): any;
-    allSoundOff(channelNumber: number): any;
-    resetAllControl(channelNumber: number): any;
-    expression(channelNumber: number, expression: number): any;
-    setPercussionPart(channelNumber: number, sw: boolean): any;
-    hold(channelNumber: number, sw: boolean): any;
-    setReverbDepth(channelNumber: number, depth: number): any;
-    releaseTime(channelNumber: number, value: number): any;
+    init(): void;
+    noteOn(channel: number, key: number, velocity: number): void;
+    noteOff(channel: number, key: number, velocity: number): void;
+    setMasterVolume(volume: number): void;
+    programChange(channelNumber: number, instrument: number): void;
+    volumeChange(channelNumber: number, volume: number): void;
+    panpotChange(channelNumber: number, panpot: number): void;
+    pitchBend(channelNumber: number, pitchBend: number): void;
+    pitchBendSensitivity(channelNumber: number, sensitivity: number): void;
+    allSoundOff(channelNumber: number): void;
+    resetAllControl(channelNumber: number): void;
+    expression(channelNumber: number, expression: number): void;
+    setPercussionPart(channelNumber: number, sw: boolean): void;
+    hold(channelNumber: number, sw: boolean): void;
+    setReverbDepth(channelNumber: number, depth: number): void;
+    releaseTime(channelNumber: number, value: number): void;
     isXG: boolean;
     isGS: boolean;
 }

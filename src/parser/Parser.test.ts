@@ -1,4 +1,4 @@
-const fs = require("fs")
+import fs from "fs"
 import parse from "./Parser"
 
 describe("Parser", () => {

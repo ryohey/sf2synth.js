@@ -26,9 +26,8 @@ class Channel {
 }
 
 export default class Synthesizer implements Listener {
-  bufferSize: number = 1024
-  ctx: AudioContext
-  gainMaster: GainNode
+  private ctx: AudioContext
+  private gainMaster: GainNode
   channels: Channel[] = []
   masterVolume: number = 1.0
   soundFont: SoundFont
@@ -36,7 +35,7 @@ export default class Synthesizer implements Listener {
   isXG: boolean
   isGS: boolean
 
-  constructor(ctx) {
+  constructor(ctx: AudioContext) {
     this.ctx = ctx
     this.gainMaster = this.ctx.createGain()
     this.setMasterVolume(this.masterVolume)

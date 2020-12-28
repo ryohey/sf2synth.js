@@ -24,7 +24,6 @@ class Channel {
 }
 export default class Synthesizer {
     constructor(ctx) {
-        this.bufferSize = 1024;
         this.channels = [];
         this.masterVolume = 1.0;
         this.ctx = ctx;
@@ -58,11 +57,11 @@ export default class Synthesizer {
         this.gainMaster.connect(destination);
     }
     setMasterVolume(volume) {
-        const vol = BASE_VOLUME * volume / 0x8000;
+        const vol = (BASE_VOLUME * volume) / 0x8000;
         this.masterVolume = volume;
         if (vol) {
             //this.gainMaster.gain.value = BASE_VOLUME * volume / 0x8000
-            this.gainMaster.gain.setTargetAtTime(BASE_VOLUME * volume / 0x8000, this.ctx.currentTime, 0.015);
+            this.gainMaster.gain.setTargetAtTime((BASE_VOLUME * volume) / 0x8000, this.ctx.currentTime, 0.015);
         }
     }
     noteOn(channelNumber, key, velocity) {
@@ -93,7 +92,7 @@ export default class Synthesizer {
             mute: channel.mute,
             releaseTime: channel.releaseTime,
             cutOffFrequency: channel.cutOffFrequency,
-            harmonicContent: channel.harmonicContent
+            harmonicContent: channel.harmonicContent,
         };
         // percussion
         if (channel.isPercussionPart) {
@@ -160,7 +159,6 @@ export default class Synthesizer {
         }
         this.channels[channelNumber].expression = expression;
     }
-    ;
     panpotChange(channelNumber, panpot) {
         this.channels[channelNumber].panpot = panpot;
     }
@@ -214,7 +212,7 @@ export default class Synthesizer {
             else {
                 // Bank Select MSB #0 (Voice Type: Normal)
                 // TODO:本来こちらが正しいが、バンクに存在しない楽器の処理ができていないためコメントアウト
-                //bankIndex = this.channelBankLsb[channel];  
+                //bankIndex = this.channelBankLsb[channel];
                 bankIndex = 0;
             }
         }
