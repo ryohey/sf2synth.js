@@ -57,12 +57,8 @@ export default class Synthesizer {
         this.gainMaster.connect(destination);
     }
     setMasterVolume(volume) {
-        const vol = (BASE_VOLUME * volume) / 0x8000;
         this.masterVolume = volume;
-        if (vol) {
-            //this.gainMaster.gain.value = BASE_VOLUME * volume / 0x8000
-            this.gainMaster.gain.setTargetAtTime((BASE_VOLUME * volume) / 0x8000, this.ctx.currentTime, 0.015);
-        }
+        this.gainMaster.gain.value = (BASE_VOLUME * volume) / 0x8000;
     }
     noteOn(channelNumber, key, velocity) {
         if (!this.soundFont) {

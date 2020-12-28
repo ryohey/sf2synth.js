@@ -176,8 +176,8 @@ export default class MidiMessageHandler {
                                 // Notice: [sum] is ignroe in this program.
                                 // http://www.ssw.co.jp/dtm/drums/drsetup.htm
                                 // http://www.roland.co.jp/support/by_product/sd-20/knowledge_base/1826700/
-                                var part = message[7] - 0x0f;
-                                var map = message[8];
+                                const part = message[7] - 0x0f;
+                                const map = message[8];
                                 if (part === 0) {
                                     // 10 Ch.
                                     if (map !== 0x00) {

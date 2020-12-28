@@ -1,6 +1,6 @@
 {
   "name": "@ryohey/sf2synth",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "sf2synth.js",
   "main": "bin/index.js",
   "types": "bin/index.d.ts",
