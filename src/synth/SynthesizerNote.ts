@@ -92,21 +92,27 @@ export default class SynthesizerNote {
     this.panner.connect(this.expressionGain)
     this.expressionGain.connect(this.gainOutput)
     this.bufferSource.onended = () => this.disconnect()
+
+    this.updatePitchBend(this.instrument.pitchBend)
+
+    this.expressionGain.gain.setTargetAtTime(
+      this.expression / 127,
+      this.ctx.currentTime,
+      0.015
+    )
+
+    const baseFreq = amountToFreq(noteInfo.initialFilterFc)
+    this.modulator.frequency.setTargetAtTime(
+      baseFreq,
+      this.ctx.currentTime,
+      0.015
+    )
   }
 
   noteOn() {
     const { noteInfo } = this
 
     const now = this.ctx.currentTime
-
-    this.updatePitchBend(this.instrument.pitchBend)
-
-    //this.expressionGain.gain.value = this.expression / 127;
-    this.expressionGain.gain.setTargetAtTime(
-      this.expression / 127,
-      this.ctx.currentTime,
-      0.015
-    )
 
     // panpot
     // TODO: ドラムパートのPanが変化した場合、その計算をしなければならない
@@ -159,12 +165,6 @@ export default class SynthesizerNote {
     this.modulator.Q.setValueAtTime(
       Math.pow(10, noteInfo.initialFilterQ / 200),
       now
-    )
-    //modulator.frequency.value = baseFreq;
-    this.modulator.frequency.setTargetAtTime(
-      baseFreq,
-      this.ctx.currentTime,
-      0.015
     )
     this.modulator.frequency
       .setValueAtTime(baseFreq, now)
