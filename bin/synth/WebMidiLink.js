@@ -65,7 +65,7 @@ export default class WebMidiLink {
     loadSoundFont(input) {
         let synth;
         if (!this.synth) {
-            const ctx = new AudioContext();
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
             synth = this.synth = new Synthesizer(ctx);
             synth.connect(ctx.destination);
             synth.loadSoundFont(input);

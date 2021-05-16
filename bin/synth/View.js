@@ -79,31 +79,42 @@ export default class View {
             const notes = item.querySelectorAll(".key");
             for (let j = 0; j < 128; ++j) {
                 const key = j;
-                notes[j].addEventListener("mousedown", (event) => {
-                    event.preventDefault();
-                    this.drag = true;
+                let isNoteOn = false;
+                const noteOn = () => {
                     this.noteOn(channel, key, 127);
                     synth.noteOn(channel, key, 127);
+                    isNoteOn = true;
                     const onMouseUp = (event) => {
                         document.removeEventListener("mouseup", onMouseUp);
                         event.preventDefault();
                         this.drag = false;
-                        this.noteOff(channel, key, 0);
-                        synth.noteOff(channel, key, 0);
+                        if (isNoteOn) {
+                            noteOff();
+                        }
                     };
                     document.addEventListener("mouseup", onMouseUp);
+                };
+                const noteOff = () => {
+                    this.noteOff(channel, key, 0);
+                    synth.noteOff(channel, key, 0);
+                    isNoteOn = false;
+                };
+                notes[j].addEventListener("mousedown", (event) => {
+                    event.preventDefault();
+                    this.drag = true;
+                    noteOn();
                 });
                 notes[j].addEventListener("mouseover", (event) => {
                     event.preventDefault();
                     if (this.drag) {
-                        this.noteOn(channel, key, 127);
-                        synth.noteOn(channel, key, 127);
+                        noteOn();
                     }
                 });
                 notes[j].addEventListener("mouseout", (event) => {
                     event.preventDefault();
-                    this.noteOff(channel, key, 0);
-                    synth.noteOff(channel, key, 0);
+                    if (isNoteOn) {
+                        noteOff();
+                    }
                 });
             }
             element.appendChild(item);
