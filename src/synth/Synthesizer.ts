@@ -49,7 +49,7 @@ export default class Synthesizer implements Listener {
       this.programChange(i, 0x00)
       this.volumeChange(i, 0x64)
       this.panpotChange(i, 0x40)
-      this.pitchBend(i, 0)
+      this.pitchBend(i, 0x2000)
       this.pitchBendSensitivity(i, 2)
       this.hold(i, false)
       this.expression(i, 0x7f)
