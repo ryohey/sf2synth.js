@@ -51,8 +51,15 @@ export default class SynthesizerNote {
         // TODO: ドラムパートのPanが変化した場合、その計算をしなければならない
         // http://cpansearch.perl.org/src/PJB/MIDI-SoundFont-1.08/doc/sfspec21.html#8.4.6
         const pan = noteInfo.pan ? noteInfo.pan / 120 : this.instrument.panpot;
-        this.panner.positionX.setValueAtTime(Math.sin((pan * Math.PI) / 2), now);
-        this.panner.positionZ.setValueAtTime(Math.cos((pan * Math.PI) / 2), now);
+        const positionX = Math.sin((pan * Math.PI) / 2);
+        const positionZ = Math.cos((pan * Math.PI) / 2);
+        if (this.panner.positionX) {
+            this.panner.positionX.setValueAtTime(positionX, now);
+            this.panner.positionZ.setValueAtTime(positionZ, now);
+        }
+        else {
+            this.panner.setPosition(positionX, 0, positionZ);
+        }
         //---------------------------------------------------------------------------
         // Delay, Attack, Hold, Decay, Sustain
         //---------------------------------------------------------------------------
