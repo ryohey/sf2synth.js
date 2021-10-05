@@ -96,12 +96,7 @@ export default class SynthesizerNote {
             .setTargetAtTime(peekFreq, modDelay, noteInfo.modAttack++) // For FireFox fix
             .setValueAtTime(peekFreq, modHold)
             .linearRampToValueAtTime(sustainFreq, modDecay);
-        if (!noteInfo.mute) {
-            this.gainOutput.connect(this.destination);
-        }
-        else {
-            this.gainOutput.disconnect();
-        }
+        this.gainOutput.connect(this.destination);
         // fire
         this.bufferSource.start(0, startTime);
     }
@@ -109,12 +104,11 @@ export default class SynthesizerNote {
         const { noteInfo, bufferSource } = this;
         const output = this.gainOutput;
         const now = this.ctx.currentTime;
-        const release = noteInfo.releaseTime - 64;
         //---------------------------------------------------------------------------
         // volume release time
         //---------------------------------------------------------------------------
         const volEndTimeTmp = noteInfo.volRelease * output.gain.value;
-        const volEndTime = now + volEndTimeTmp * (1 + release / (release < 0 ? 64 : 63));
+        const volEndTime = now + volEndTimeTmp;
         //---------------------------------------------------------------------------
         // modulation release time
         //---------------------------------------------------------------------------

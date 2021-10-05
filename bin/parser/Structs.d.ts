@@ -47,14 +47,14 @@ export declare class ModulatorList {
     value: number | RangeValue;
     amountSourceOper: number;
     transOper: number;
-    get type(): string | undefined;
+    get type(): "pan" | "startAddrsOffset" | "endAddrsOffset" | "startloopAddrsOffset" | "endloopAddrsOffset" | "startAddrsCoarseOffset" | "modLfoToPitch" | "vibLfoToPitch" | "modEnvToPitch" | "initialFilterFc" | "initialFilterQ" | "modLfoToFilterFc" | "modEnvToFilterFc" | "endAddrsCoarseOffset" | "modLfoToVolume" | "chorusEffectsSend" | "reverbEffectsSend" | "delayModLFO" | "freqModLFO" | "delayVibLFO" | "freqVibLFO" | "delayModEnv" | "attackModEnv" | "holdModEnv" | "decayModEnv" | "sustainModEnv" | "releaseModEnv" | "keynumToModEnvHold" | "keynumToModEnvDecay" | "delayVolEnv" | "attackVolEnv" | "holdVolEnv" | "decayVolEnv" | "sustainVolEnv" | "releaseVolEnv" | "keynumToVolEnvHold" | "keynumToVolEnvDecay" | "instrument" | "keyRange" | "velRange" | "startloopAddrsCoarseOffset" | "keynum" | "velocity" | "initialAttenuation" | "endloopAddrsCoarseOffset" | "coarseTune" | "fineTune" | "sampleID" | "sampleModes" | "scaleTuning" | "exclusiveClass" | "overridingRootKey" | undefined;
     get isEnd(): boolean;
     static parse(stream: Stream): ModulatorList;
 }
 export declare class GeneratorList {
     code: number;
     value: number | RangeValue;
-    get type(): string | undefined;
+    get type(): "pan" | "startAddrsOffset" | "endAddrsOffset" | "startloopAddrsOffset" | "endloopAddrsOffset" | "startAddrsCoarseOffset" | "modLfoToPitch" | "vibLfoToPitch" | "modEnvToPitch" | "initialFilterFc" | "initialFilterQ" | "modLfoToFilterFc" | "modEnvToFilterFc" | "endAddrsCoarseOffset" | "modLfoToVolume" | "chorusEffectsSend" | "reverbEffectsSend" | "delayModLFO" | "freqModLFO" | "delayVibLFO" | "freqVibLFO" | "delayModEnv" | "attackModEnv" | "holdModEnv" | "decayModEnv" | "sustainModEnv" | "releaseModEnv" | "keynumToModEnvHold" | "keynumToModEnvDecay" | "delayVolEnv" | "attackVolEnv" | "holdVolEnv" | "decayVolEnv" | "sustainVolEnv" | "releaseVolEnv" | "keynumToVolEnvHold" | "keynumToVolEnvDecay" | "instrument" | "keyRange" | "velRange" | "startloopAddrsCoarseOffset" | "keynum" | "velocity" | "initialAttenuation" | "endloopAddrsCoarseOffset" | "coarseTune" | "fineTune" | "sampleID" | "sampleModes" | "scaleTuning" | "exclusiveClass" | "overridingRootKey" | undefined;
     get isEnd(): boolean;
     static parse(stream: Stream): GeneratorList;
 }
