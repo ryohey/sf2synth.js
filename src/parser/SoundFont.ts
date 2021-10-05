@@ -197,8 +197,6 @@ export default class SoundFont {
         ? convertTime(gen.freqVibLFO) * 8.176
         : undefined,
       pan: gen.pan,
-      mute: false,
-      releaseTime: gen.releaseTime,
     }
   }
 
@@ -356,8 +354,6 @@ const defaultInstrumentZone = {
   initialFilterQ: 1,
   initialFilterFc: 13500,
   sampleModes: 0,
-  mute: false,
-  releaseTime: 64,
   pan: undefined,
 }
 
@@ -390,8 +386,6 @@ export interface NoteInfo {
   initialFilterQ: number
   initialAttenuation: number
   freqVibLFO: number | undefined
-  mute: boolean
-  releaseTime: number
   pan: number | undefined
   keyRange: RangeValue
   velRange: RangeValue | undefined
