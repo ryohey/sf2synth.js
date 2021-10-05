@@ -58,4 +58,4 @@ export const GeneratorEnumeratorTable = [
   "scaleTuning",
   "exclusiveClass",
   "overridingRootKey",
-]
+] as const
