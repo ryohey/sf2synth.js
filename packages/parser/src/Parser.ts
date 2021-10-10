@@ -26,7 +26,7 @@ export interface ParseResult {
   info: Info
 }
 
-export default function parse(
+export function parse(
   input: Uint8Array,
   option: RiffParserOptions = {}
 ): ParseResult {

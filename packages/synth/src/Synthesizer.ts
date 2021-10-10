@@ -1,6 +1,5 @@
 import SynthesizerNote from "./SynthesizerNote"
-import parse from "../parser/Parser"
-import SoundFont from "../parser/SoundFont"
+import { SoundFont, parse } from "@ryohey/sf2parser"
 import { InstrumentState } from "./SynthesizerNote"
 import { Listener } from "./MidiMessageHandler"
 

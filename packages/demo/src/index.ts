@@ -1,4 +1,4 @@
-import { WebMidiLink } from "../synth"
+import { WebMidiLink } from "@ryohey/sf2synth"
 
 const wml = new WebMidiLink()
 wml.setLoadCallback(() => {

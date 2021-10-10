@@ -1,4 +1,4 @@
-import { NoteInfo } from "../parser/SoundFont"
+import { NoteInfo } from "@ryohey/sf2parser"
 
 export interface InstrumentState {
   channel: number

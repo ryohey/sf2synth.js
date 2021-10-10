@@ -7,5 +7,13 @@
   "devDependencies": {},
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "scripts": {
+    "build": "npm run build:parser && npm run build:synth",
+    "build:parser": "npm run build --workspace=@ryohey/sf2parser",
+    "watch:parser": "npm start --workspace=@ryohey/sf2parser",
+    "build:synth": "npm run build --workspace=@ryohey/sf2synth",
+    "watch:synth": "npm start --workspace=@ryohey/sf2synth",
+    "demo": "npm start --workspace=demo"
+  }
 }

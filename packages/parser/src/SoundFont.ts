@@ -16,7 +16,7 @@ import { getPresetGenerators } from "./getPresetGenerators"
  * Parser で読み込んだサウンドフォントのデータを
  * Synthesizer から利用しやすい形にするクラス
  */
-export default class SoundFont {
+export class SoundFont {
   private parsed: ParseResult
 
   constructor(parsed: ParseResult) {
