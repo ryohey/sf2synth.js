@@ -16,7 +16,14 @@ module.exports = {
     extensions: [".ts", ".js"],
   },
   devServer: {
-    contentBase: [`${__dirname}/public`, `${__dirname}/fixture`],
+    static: [
+      {
+        directory: `${__dirname}/public`,
+      },
+      {
+        directory: `${__dirname}/fixture`,
+      },
+    ],
     port: 8080,
     open: true,
   },
