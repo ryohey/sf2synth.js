@@ -5,7 +5,7 @@ import { RangeValue } from "./Structs";
  * Parser で読み込んだサウンドフォントのデータを
  * Synthesizer から利用しやすい形にするクラス
  */
-export default class SoundFont {
+export declare class SoundFont {
     private parsed;
     constructor(parsed: ParseResult);
     getPresetZone(presetHeaderIndex: number): import("./Structs").GeneratorList[];

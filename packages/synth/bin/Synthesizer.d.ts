@@ -1,5 +1,5 @@
 import SynthesizerNote from "./SynthesizerNote";
-import SoundFont from "../parser/SoundFont";
+import { SoundFont } from "@ryohey/sf2parser";
 import { Listener } from "./MidiMessageHandler";
 declare class Channel {
     instrument: number;

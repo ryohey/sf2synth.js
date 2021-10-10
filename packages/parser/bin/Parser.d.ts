@@ -14,4 +14,4 @@ export interface ParseResult {
     samplingData: Chunk;
     info: Info;
 }
-export default function parse(input: Uint8Array, option?: RiffParserOptions): ParseResult;
+export declare function parse(input: Uint8Array, option?: RiffParserOptions): ParseResult;
