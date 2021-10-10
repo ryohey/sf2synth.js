@@ -14,6 +14,9 @@
     "watch:parser": "npm start --workspace=@ryohey/sf2parser",
     "build:synth": "npm run build --workspace=@ryohey/sf2synth",
     "watch:synth": "npm start --workspace=@ryohey/sf2synth",
-    "demo": "npm start --workspace=demo"
+    "demo": "npm start --workspace=demo",
+    "test": "npm run test:parser && npm run test:synth",
+    "test:parser": "npm run test --workspace=@ryohey/sf2parser",
+    "test:synth": "npm run test --workspace=@ryohey/sf2synth"
   }
 }

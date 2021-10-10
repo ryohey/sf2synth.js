@@ -1,5 +1,5 @@
 import fs from "fs"
-import parse from "./Parser"
+import { parse } from "./Parser"
 
 describe("Parser", () => {
   const input = fs.readFileSync("./fixture/TestSoundFont.sf2")
