@@ -4,6 +4,7 @@
   "description": "sf2synth.js",
   "main": "bin/index.js",
   "types": "bin/index.d.ts",
+  "type": "module",
   "scripts": {
     "start": "rollup --watch --config ../../rollup.config.js",
     "build": "rollup --config ../../rollup.config.js",
