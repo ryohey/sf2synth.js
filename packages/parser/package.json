@@ -1,6 +1,6 @@
 {
   "name": "@ryohey/sf2parser",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "SoundFont parser",
   "main": "bin/index.js",
   "types": "bin/index.d.ts",
