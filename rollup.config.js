@@ -7,7 +7,7 @@ export default {
   output: {
     dir: "bin",
     sourcemap: true,
-    format: "commonjs",
+    format: "esm",
   },
   plugins: [
     nodeResolve({ preferBuiltins: false, browser: true }),

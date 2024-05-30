@@ -22,8 +22,13 @@ export interface ParseResult {
   instrumentGenerators: GeneratorList[]
   sampleHeaders: SampleHeader[]
   samples: Int16Array[]
-  samplingData: Chunk
+  samplingData: SamplingData
   info: Info
+}
+
+export interface SamplingData {
+  offsetMSB: number
+  offsetLSB: number | undefined
 }
 
 export function parse(
@@ -88,7 +93,8 @@ export function parse(
     ...result,
     samples: loadSample(
       result.sampleHeaders,
-      result.samplingData.offset,
+      result.samplingData.offsetMSB,
+      result.samplingData.offsetLSB,
       input
     ),
   }
@@ -122,14 +128,13 @@ function parseInfoList(chunk: Chunk, data: Uint8Array) {
   return Info.parse(data, chunkList)
 }
 
-function parseSdtaList(chunk: Chunk, data: Uint8Array): Chunk {
+function parseSdtaList(chunk: Chunk, data: Uint8Array): SamplingData {
   const chunkList = getChunkList(chunk, data, "LIST", "sdta")
 
-  if (chunkList.length !== 1) {
-    throw new Error("TODO")
+  return {
+    offsetMSB: chunkList[0].offset,
+    offsetLSB: chunkList[1]?.offset,
   }
-
-  return chunkList[0]
 }
 
 function parseChunk<T>(
@@ -201,18 +206,22 @@ function adjustSampleData(sample: Int16Array, sampleRate: number) {
 
 function loadSample(
   sampleHeader: SampleHeader[],
-  samplingDataOffset: number,
+  samplingDataOffsetMSB: number,
+  _samplingDataOffsetLSB: number | undefined,
   data: Uint8Array
 ): Int16Array[] {
   return sampleHeader.map((header) => {
     let sample = new Int16Array(
       new Uint8Array(
         data.subarray(
-          samplingDataOffset + header.start * 2,
-          samplingDataOffset + header.end * 2
+          samplingDataOffsetMSB + header.start * 2,
+          samplingDataOffsetMSB + header.end * 2
         )
       ).buffer
     )
+
+    // TODO: support 24bit sample
+
     if (header.sampleRate > 0) {
       const adjust = adjustSampleData(sample, header.sampleRate)
       sample = adjust.sample
