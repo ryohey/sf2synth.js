@@ -1,4 +1,4 @@
-import { Chunk, Options as RiffParserOptions } from "./RiffParser";
+import { Options as RiffParserOptions } from "./RiffParser";
 import { PresetHeader, SampleHeader, PresetBag, Instrument, InstrumentBag, ModulatorList, GeneratorList, Info } from "./Structs";
 export interface ParseResult {
     presetHeaders: PresetHeader[];
@@ -11,7 +11,11 @@ export interface ParseResult {
     instrumentGenerators: GeneratorList[];
     sampleHeaders: SampleHeader[];
     samples: Int16Array[];
-    samplingData: Chunk;
+    samplingData: SamplingData;
     info: Info;
+}
+export interface SamplingData {
+    offsetMSB: number;
+    offsetLSB: number | undefined;
 }
 export declare function parse(input: Uint8Array, option?: RiffParserOptions): ParseResult;
