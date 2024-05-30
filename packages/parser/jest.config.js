@@ -1,5 +1,5 @@
-const base = require("../../jest.config")
+import base from "../../jest.config.js"
 
-module.exports = {
+export default {
   ...base,
 }

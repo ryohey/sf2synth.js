@@ -207,7 +207,7 @@ function adjustSampleData(sample: Int16Array, sampleRate: number) {
 function loadSample(
   sampleHeader: SampleHeader[],
   samplingDataOffsetMSB: number,
-  samplingDataOffsetLSB: number | undefined,
+  _samplingDataOffsetLSB: number | undefined,
   data: Uint8Array
 ): Int16Array[] {
   return sampleHeader.map((header) => {
